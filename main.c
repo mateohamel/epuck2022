@@ -247,21 +247,32 @@ void show_gravity(imu_msg_t *imu_values){
 
 void Mode_Detection(imu_msg_t *imu_values){
 
-	float threshold_zh = 18;
-	float threshold_zl = 5;
+	float threshold_zh = 16;
+	float threshold_zl = 10;
 	float threshold_xy = 3;
 	//create a pointer to the array for shorter name
 	float *accell = imu_values->acceleration;
+    static uint8_t counter = 0;
 
 	if(fabs(accell[2/*Z-AXIS*/]) < threshold_zh && fabs(accell[2/*Z-AXIS*/]) > threshold_zl && !(fabs(accell[X_AXIS]) > threshold_xy || fabs(accell[Y_AXIS]) > threshold_xy )){
 		if(Mode == 1){
-			Mode = 2;
-			uint8_t led1 =1;
-			palWritePad(GPIOD, GPIOD_LED1, led1 ? 0 : 1);
+			if(counter == 8){
+				Mode = 2;
+				uint8_t bodyled =1;
+				palWritePad(GPIOB, GPIOB_LED_BODY, bodyled ? 0 : 1);
+				counter = 0;
+			}else{
+			++counter;
+			}
 		}else{
-			Mode = 1;
-			uint8_t led1 =0;
-			palWritePad(GPIOD, GPIOD_LED1, led1 ? 0 : 1);
+			if(counter == 8){
+				Mode = 1;
+				uint8_t bodyled =0;
+				palWritePad(GPIOB, GPIOB_LED_BODY, bodyled ? 0 : 1);
+				counter = 0;
+			}else{
+				++counter;
+			}
 		}
 	}
 }
@@ -281,33 +292,31 @@ static THD_FUNCTION(ModeSelectionThread, arg) {
 		messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
 
 		Mode_Detection(&imu_values);
-		chThdSleepMilliseconds(500);
+		chThdSleepMilliseconds(10);
 	}
 }
 
 
-//static THD_WORKING_AREA(waInstructionFlowThread, 128);
-//static THD_FUNCTION(InstructionFlowThread, arg) {
-//
-//	chRegSetThreadName(__FUNCTION__);
-//	(void)arg;
-//
-//	messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
-//	imu_msg_t imu_values;
-//
-//	while(1){
-//
-////		if(Mode == 1){
-//			//wait for new measures to be published
-//			messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
-//
-//			show_gravity(&imu_values);
-////		}else{
-////			palTogglePad(GPIOB, GPIOB_LED_BODY);
-////		}
-//		chThdSleepMilliseconds(400);
-//	}
-//}
+static THD_WORKING_AREA(waInstructionFlowThread, 128);
+static THD_FUNCTION(InstructionFlowThread, arg) {
+
+	chRegSetThreadName(__FUNCTION__);
+	(void)arg;
+
+	messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
+	imu_msg_t imu_values;
+
+	while(1){
+
+		if(Mode == 1){
+			//wait for new measures to be published
+			messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
+
+			show_gravity(&imu_values);
+		}
+		chThdSleepMilliseconds(400);
+	}
+}
 
 
 int main(void)
@@ -318,8 +327,8 @@ int main(void)
 
     imu_start(); //appel i2c_start() + lance la thread du imu.
 
-//    chThdCreateStatic(waInstructionFlowThread, sizeof(waInstructionFlowThread), NORMALPRIO, InstructionFlowThread, NULL);
     chThdCreateStatic(waModeSelectionThread, sizeof(waModeSelectionThread), NORMALPRIO, ModeSelectionThread, NULL);
+	chThdCreateStatic(waInstructionFlowThread, sizeof(waInstructionFlowThread), NORMALPRIO, InstructionFlowThread, NULL);
 
 
     /** Inits the Inter Process Communication bus. */
