@@ -30,22 +30,34 @@ uint8_t Instruction_Counter = 0;
 #define MODE_1 1 //rentrée d'instruction
 #define MODE_2 2 //excecution d'instruction
 
-uint8_t Mode = 1;
+uint8_t Mode = 2;
 
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
 
+void led_charging(uint8_t *leds_tmp, uint8_t starting_led, uint8_t led_numbers) {
+
+	uint8_t i;
+	for(i=0; i < led_numbers; i=i+1){
+		if(starting_led + i < 4){
+			leds_tmp[starting_led + i] = 1;
+		}else{
+			leds_tmp[starting_led + i - 4] =1;
+		}
+	}
+}
 
 
 void show_gravity(imu_msg_t *imu_values){
 
     //we create variables for the led in order to turn them off at each loop and to
     //select which one to turn on
-    uint8_t led1 = 0, led3 = 0, led5 = 0, led7 = 0;
+	uint8_t leds[4] = {0,0,0,0};
+//	uint8_t led1 = 0, led3 = 0, led5 = 0, led7 = 0;
     //threshold value to not use the leds when the robot is too horizontal
-    float threshold = 5;
+    float threshold = 3;
     //create a pointer to the array for shorter name
     float *accel = imu_values->acceleration;
     static uint8_t counter = 0;
@@ -91,32 +103,36 @@ void show_gravity(imu_msg_t *imu_values){
             	++counter;
             }else{
             	counter=0;
-            	led5 = 0;
+            	leds[2] = 0;
             }
             switch(counter){
             case 2:
-            	led5 = 1;
-				led7 = 0;
-				led1 = 0;
-				led3 = 0;
+            	led_charging(leds, 2, 1);
+//            	leds[2] = 1;
+//				leds[3] = 0;
+//				leds[0] = 0;
+//				leds[1] = 0;
 				break;
             case 3:
-	        	led5 = 1;
-				led7 = 1;
-				led1 = 0;
-				led3 = 0;
+            	led_charging(leds, 2, 2);
+//            	leds[2] = 1;
+//            	leds[3] = 1;
+//            	leds[0] = 0;
+//				leds[1] = 0;
 				break;
             case 4:
-	        	led5 = 1;
-				led7 = 1;
-				led1 = 1;
-				led3 = 0;
+            	led_charging(leds, 2, 3);
+//            	leds[2] = 1;
+//            	leds[3] = 1;
+//            	leds[0] = 1;
+//				leds[1] = 0;
 				break;
             case 5:
-	        	led5 = 1;
-				led7 = 1;
-				led1 = 1;
-				led3 = 1;
+            	led_charging(leds, 2, 4);
+//            	leds[2] = 1;
+//            	leds[3] = 1;
+//            	leds[0] = 1;
+//				leds[1] = 1;
 				Instruction_Flow[Instruction_Counter] = BACKWARD;
 				++Instruction_Counter;
 				counter = 0;
@@ -128,32 +144,32 @@ void show_gravity(imu_msg_t *imu_values){
             	++counter;
             }else{
             	counter=0;
-            	led7 = 0;
+            	leds[3] = 0;
             }
             switch(counter){
             case 2:
-            	led7 = 1;
-				led1 = 0;
-				led3 = 0;
-				led5 = 0;
+            	leds[3] = 1;
+				leds[0] = 0;
+				leds[1] = 0;
+				leds[2] = 0;
 				break;
             case 3:
-	            led7 = 1;
-				led1 = 1;
-				led3 = 0;
-				led5 = 0;
+	            leds[3] = 1;
+				leds[0] = 1;
+				leds[1] = 0;
+				leds[2] = 0;
 				break;
             case 4:
-	            led7 = 1;
-				led1 = 1;
-				led3 = 1;
-				led5 = 0;
+	            leds[3] = 1;
+				leds[0] = 1;
+				leds[1] = 1;
+				leds[2] = 0;
 				break;
             case 5:
-	            led7 = 1;
-				led1 = 1;
-				led3 = 1;
-				led5 = 1;
+	            leds[3] = 1;
+				leds[0] = 1;
+				leds[1] = 1;
+				leds[2] = 1;
 				Instruction_Flow[Instruction_Counter] = LEFT;
 				++Instruction_Counter;
 				counter = 0;
@@ -165,32 +181,32 @@ void show_gravity(imu_msg_t *imu_values){
             	++counter;
             }else{
             	counter=0;
-            	led1 = 0;
+            	leds[0] = 0;
             }
 			switch(counter){
 			case 2:
-				led1 = 1;
-				led3 = 0;
-				led5 = 0;
-				led7 = 0;
+				leds[0] = 1;
+				leds[1] = 0;
+				leds[2] = 0;
+				leds[3] = 0;
 				break;
 			case 3:
-				led1 = 1;
-				led3 = 1;
-				led5 = 0;
-				led7 = 0;
+				leds[0] = 1;
+				leds[1] = 1;
+				leds[2] = 0;
+				leds[3] = 0;
 				break;
 			case 4:
-				led1 = 1;
-				led3 = 1;
-				led5 = 1;
-				led7 = 0;
+				leds[0] = 1;
+				leds[1] = 1;
+				leds[2] = 1;
+				leds[3] = 0;
 				break;
 			case 5:
-				led1 = 1;
-				led3 = 1;
-				led5 = 1;
-				led7 = 1;
+				leds[0] = 1;
+				leds[1] = 1;
+				leds[2] = 1;
+				leds[3] = 1;
 				Instruction_Flow[Instruction_Counter] = FORWARD;
 				++Instruction_Counter;
 				counter = 0;
@@ -202,32 +218,32 @@ void show_gravity(imu_msg_t *imu_values){
             	++counter;
             }else{
             	counter=0;
-            	led3 = 0;
+            	leds[1] = 0;
             }
 			switch(counter){
 			case 2:
-				led3 = 1;
-            	led5 = 0;
-				led7 = 0;
-				led1 = 0;
+				leds[1] = 1;
+            	leds[2] = 0;
+				leds[3] = 0;
+				leds[0] = 0;
 				break;
 			case 3:
-    			led3 = 1;
-				led5 = 1;
-				led7 = 0;
-				led1 = 0;
+    			leds[1] = 1;
+				leds[2] = 1;
+				leds[3] = 0;
+				leds[0] = 0;
 				break;
 			case 4:
-				led3 = 1;
-				led5 = 1;
-				led7 = 1;
-				led1 = 0;
+				leds[1] = 1;
+				leds[2] = 1;
+				leds[3] = 1;
+				leds[0] = 0;
 				break;
 			case 5:
-				led3 = 1;
-				led5 = 1;
-				led7 = 1;
-				led1 = 1;
+				leds[1] = 1;
+				leds[2] = 1;
+				leds[3] = 1;
+				leds[0] = 1;
 				Instruction_Flow[Instruction_Counter] = RIGHT;
 				++Instruction_Counter;
 				counter = 0;
@@ -238,10 +254,10 @@ void show_gravity(imu_msg_t *imu_values){
     }
 
     //we invert the values because a led is turned on if the signal is low
-    palWritePad(GPIOD, GPIOD_LED1, led1 ? 0 : 1);
-    palWritePad(GPIOD, GPIOD_LED3, led3 ? 0 : 1);
-    palWritePad(GPIOD, GPIOD_LED5, led5 ? 0 : 1);
-    palWritePad(GPIOD, GPIOD_LED7, led7 ? 0 : 1);
+    palWritePad(GPIOD, GPIOD_LED1, leds[0] ? 0 : 1);
+    palWritePad(GPIOD, GPIOD_LED3, leds[1] ? 0 : 1);
+    palWritePad(GPIOD, GPIOD_LED5, leds[2] ? 0 : 1);
+    palWritePad(GPIOD, GPIOD_LED7, leds[3] ? 0 : 1);
 
 }
 
@@ -249,7 +265,7 @@ void Mode_Detection(imu_msg_t *imu_values){
 
 	float threshold_zh = 16;
 	float threshold_zl = 10;
-	float threshold_xy = 3;
+	float threshold_xy = 2.5;
 	//create a pointer to the array for shorter name
 	float *accell = imu_values->acceleration;
     static uint8_t counter = 0;
@@ -257,7 +273,7 @@ void Mode_Detection(imu_msg_t *imu_values){
 	if(fabs(accell[2/*Z-AXIS*/]) < threshold_zh && fabs(accell[2/*Z-AXIS*/]) > threshold_zl && !(fabs(accell[X_AXIS]) > threshold_xy || fabs(accell[Y_AXIS]) > threshold_xy )){
 		if(Mode == 1){
 			if(counter == 8){
-				Mode = 2;
+				Mode = MODE_2;
 				uint8_t bodyled =1;
 				palWritePad(GPIOB, GPIOB_LED_BODY, bodyled ? 0 : 1);
 				counter = 0;
@@ -266,7 +282,7 @@ void Mode_Detection(imu_msg_t *imu_values){
 			}
 		}else{
 			if(counter == 8){
-				Mode = 1;
+				Mode = MODE_1;
 				uint8_t bodyled =0;
 				palWritePad(GPIOB, GPIOB_LED_BODY, bodyled ? 0 : 1);
 				counter = 0;
@@ -308,7 +324,7 @@ static THD_FUNCTION(InstructionFlowThread, arg) {
 
 	while(1){
 
-		if(Mode == 1){
+		if(Mode == MODE_1){
 			//wait for new measures to be published
 			messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
 
