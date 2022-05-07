@@ -269,27 +269,39 @@ void Mode_Detection(imu_msg_t *imu_values){
 	//create a pointer to the array for shorter name
 	float *accell = imu_values->acceleration;
     static uint8_t counter = 0;
+    static bool current_state = false;
 
 	if(fabs(accell[2/*Z-AXIS*/]) < threshold_zh && fabs(accell[2/*Z-AXIS*/]) > threshold_zl && !(fabs(accell[X_AXIS]) > threshold_xy || fabs(accell[Y_AXIS]) > threshold_xy )){
 		if(Mode == 1){
-			if(counter == 8){
+			if(counter == 8 && !current_state){
 				Mode = MODE_2;
 				uint8_t bodyled =1;
 				palWritePad(GPIOB, GPIOB_LED_BODY, bodyled ? 0 : 1);
 				counter = 0;
+				current_state = true;
 			}else{
-			++counter;
+				if(counter > 8){
+					counter = 0;
+				}
+				++counter;
 			}
 		}else{
-			if(counter == 8){
+			if(counter == 8 && !current_state){
 				Mode = MODE_1;
 				uint8_t bodyled =0;
 				palWritePad(GPIOB, GPIOB_LED_BODY, bodyled ? 0 : 1);
 				counter = 0;
+				current_state = true;
 			}else{
+				if(counter > 8){
+					counter = 0;
+				}
 				++counter;
 			}
 		}
+	}else{
+//		counter=0;
+		current_state = false;
 	}
 }
 
@@ -334,6 +346,21 @@ static THD_FUNCTION(InstructionFlowThread, arg) {
 	}
 }
 
+static THD_WORKING_AREA(waInstructionExecutionThread, 128);
+static THD_FUNCTION(InstructionExecutionThread, arg) {
+
+	chRegSetThreadName(__FUNCTION__);
+	(void)arg;
+
+	while(1){
+
+		if(Mode == MODE_2){
+			//function execute instruction
+		}
+		chThdSleepMilliseconds(400); //temps de sleep a determiner
+	}
+}
+
 
 int main(void)
 {
@@ -343,8 +370,9 @@ int main(void)
 
     imu_start(); //appel i2c_start() + lance la thread du imu.
 
-    chThdCreateStatic(waModeSelectionThread, sizeof(waModeSelectionThread), NORMALPRIO, ModeSelectionThread, NULL);
+    chThdCreateStatic(waModeSelectionThread, sizeof(waModeSelectionThread), NORMALPRIO, ModeSelectionThread, NULL); //j'arrive pas a changer la prio sans que ca bug
 	chThdCreateStatic(waInstructionFlowThread, sizeof(waInstructionFlowThread), NORMALPRIO, InstructionFlowThread, NULL);
+	chThdCreateStatic(waInstructionExecutionThread, sizeof(waInstructionExecutionThread), NORMALPRIO, InstructionExecutionThread, NULL);
 
 
     /** Inits the Inter Process Communication bus. */
