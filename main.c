@@ -24,7 +24,7 @@
 #define LED_7 '7'
 #define TURNING_SPEED 158
 #define SPEED_FACTOR 60
-#define SENSORS_THRESHOLD 10
+#define SENSORS_THRESHOLD 5
 
 
 
@@ -39,7 +39,7 @@ static uint8_t Instruction_Counter = 0;
 #define MODE_1 1 //rentrée d'instruction
 #define MODE_2 2 //excecution d'instruction
 
-uint8_t Mode = 2;
+uint8_t Mode = 3;
 
 
 messagebus_t bus;
@@ -280,6 +280,19 @@ void show_gravity(imu_msg_t *imu_values){
 
 }
 
+void obstacle_detection(proximity_msg_t *prox_values){
+
+
+	 //arrêter les moteurs si IR1 ou IR8 détectent un obstacle
+	 if ((prox_values->ambient[0] - prox_values->reflected[0] > 100) && (prox_values->ambient[7] - prox_values->reflected[7] > 100)){
+		left_motor_set_speed(0);
+		right_motor_set_speed(0);
+		uint8_t bodyled =1;
+		palWritePad(GPIOB, GPIOD_LED7, bodyled ? 0 : 1);
+		Mode = 3;
+	 }
+}
+
 void Mode_Detection(imu_msg_t *imu_values){
 
 	float threshold_zh = 16;
@@ -512,29 +525,51 @@ static THD_FUNCTION(InstructionExecutionThread, arg) {
 	}
 }
 
+static THD_WORKING_AREA(waDetectObstaclesThread, 128);
+static THD_FUNCTION(DetectObstaclesThread, arg) {
+
+	chRegSetThreadName(__FUNCTION__);
+	(void)arg;
+
+	messagebus_topic_t *prox_topic = messagebus_find_topic_blocking(&bus, "/proximity");
+	proximity_msg_t prox_values;
+
+	while(1){
+
+		if(Mode == MODE_2){
+			messagebus_topic_wait(prox_topic, &prox_values, sizeof(prox_values));
+
+			obstacle_detection(&prox_values);
+		}
+
+		chThdSleepMilliseconds(100);
+	}
+}
 
 
 int main(void)
 {
-
+	uint8_t bodyled =1;
+	palWritePad(GPIOB, GPIOD_LED7, bodyled ? 1 : 0);
     halInit();
     chSysInit();
 
+    /** Inits the Inter Process Communication bus. */
+    messagebus_init(&bus, &bus_lock, &bus_condvar);
 
     imu_start(); //appel i2c_start() + lance la thread du imu.
-//    proximity_start();
+    proximity_start();
     motors_init();
+
+
+
+    chThdSleepMilliseconds(2000);
 
     chThdCreateStatic(waModeSelectionThread, sizeof(waModeSelectionThread), NORMALPRIO, ModeSelectionThread, NULL); //j'arrive pas a changer la prio sans que ca bug
 	chThdCreateStatic(waInstructionFlowThread, sizeof(waInstructionFlowThread), NORMALPRIO, InstructionFlowThread, NULL);
 	chThdCreateStatic(waInstructionExecutionThread, sizeof(waInstructionExecutionThread), NORMALPRIO, InstructionExecutionThread, NULL);
-//	chThdCreateStatic(waDetectObstaclesThread, sizeof(waDetectObstaclesThread), NORMALPRIO, DetectObstaclesThread, NULL);
+	chThdCreateStatic(waDetectObstaclesThread, sizeof(waDetectObstaclesThread), NORMALPRIO, DetectObstaclesThread, NULL);
 
-
-
-
-    /** Inits the Inter Process Communication bus. */
-   messagebus_init(&bus, &bus_lock, &bus_condvar);
 
     while(1){
     	chThdSleepMilliseconds(100);

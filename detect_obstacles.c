@@ -24,12 +24,16 @@ static THD_FUNCTION(DetectObstaclesThread, arg) {
 
 	chRegSetThreadName(__FUNCTION__);
 	(void)arg;
-
+    calibrate_ir();
+	int left_prox = 0;
+	int right_prox = 0;
 	while(1){
 
 		if(Mode == MODE_2){ //? on garde ca ?
 
-			if((get_prox(7)<SENSORS_THRESHOLD)||(get_prox(0)<SENSORS_THRESHOLD)){
+			left_prox = get_prox(7);
+			right_prox = get_prox(0);
+			if((left_prox < SENSORS_THRESHOLD)||(right_prox < SENSORS_THRESHOLD)){
 				left_motor_set_speed(0);
 				right_motor_set_speed(0);
 				Mode = MODE_1;
