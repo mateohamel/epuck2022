@@ -531,7 +531,7 @@ static THD_FUNCTION(DetectObstaclesThread, arg) {
 	chRegSetThreadName(__FUNCTION__);
 	(void)arg;
 
-	messagebus_topic_t *prox_topic = messagebus_find_topic_blocking(&bus, "/prox");
+	messagebus_topic_t *prox_topic = messagebus_find_topic_blocking(&bus, "/proximity");
 	proximity_msg_t prox_values;
 
 	while(1){
@@ -549,7 +549,8 @@ static THD_FUNCTION(DetectObstaclesThread, arg) {
 
 int main(void)
 {
-
+	uint8_t bodyled =1;
+	palWritePad(GPIOB, GPIOD_LED7, bodyled ? 1 : 0);
     halInit();
     chSysInit();
 
@@ -567,16 +568,10 @@ int main(void)
     chThdCreateStatic(waModeSelectionThread, sizeof(waModeSelectionThread), NORMALPRIO, ModeSelectionThread, NULL); //j'arrive pas a changer la prio sans que ca bug
 	chThdCreateStatic(waInstructionFlowThread, sizeof(waInstructionFlowThread), NORMALPRIO, InstructionFlowThread, NULL);
 	chThdCreateStatic(waInstructionExecutionThread, sizeof(waInstructionExecutionThread), NORMALPRIO, InstructionExecutionThread, NULL);
-//	chThdCreateStatic(waDetectObstaclesThread, sizeof(waDetectObstaclesThread), NORMALPRIO, DetectObstaclesThread, NULL);
+	chThdCreateStatic(waDetectObstaclesThread, sizeof(waDetectObstaclesThread), NORMALPRIO, DetectObstaclesThread, NULL);
 
 
     while(1){
-		uint8_t bodyled =1;
-		palWritePad(GPIOB, GPIOD_LED7, bodyled ? 0 : 1);
-    	if(get_calibrated_prox(7)> 110){
-    		uint8_t bodyled =0;
-    		palWritePad(GPIOB, GPIOD_LED7, bodyled ? 0 : 1);
-    	}
     	chThdSleepMilliseconds(100);
     }
 

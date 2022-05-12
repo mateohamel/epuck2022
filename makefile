@@ -3,13 +3,14 @@
 #Simply adapt the lines below to be able to compile
 
 # Define project name here
-PROJECT = Epuck2022
+PROJECT = Noisy
 
 #Define path to the e-puck2_main-processor folder
 GLOBAL_PATH = ../../lib/e-puck2_main-processor
 
 #Source files to include
 CSRC += ./main.c \
+#	./detect_obstacles.c \
 
 #Header folders to include
 INCDIR += 
