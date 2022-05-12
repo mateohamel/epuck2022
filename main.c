@@ -9,22 +9,31 @@
 #include <motors.h>
 #include <sensors/imu.h>
 #include <msgbus/messagebus.h>
+#include <sensors/proximity.h>
+#include <math.h>
+
+#include "selector.h"
 
 #include <arm_math.h>
 
 //define for accelerometer Instruction Flow
-#define FORWARD 'F'
-#define BACKWARD 'B'
-#define LEFT 'L'
-#define RIGHT 'R'
 #define NONE '0'
 #define LED_1 '1'
 #define LED_3 '3'
 #define LED_5 '5'
 #define LED_7 '7'
+#define TURNING_SPEED 158
+#define SPEED_FACTOR 60
+#define SENSORS_THRESHOLD 10
 
-char Instruction_Flow[15] = {0};
-uint8_t Instruction_Counter = 0;
+
+
+typedef enum {BLANK, NORTH, EST, SOUTH, WEST} instruction;
+
+typedef enum {NOP, FORWARD, RIGHT,LEFT} direction;
+
+instruction Instruction_Flow[15] = {0};
+static uint8_t Instruction_Counter = 0;
 
 //define for Mode selection
 #define MODE_1 1 //rentrée d'instruction
@@ -36,6 +45,8 @@ uint8_t Mode = 2;
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
+
+
 
 void led_charging(uint8_t *leds_tmp, uint8_t starting_led, uint8_t led_numbers) {
 
@@ -133,7 +144,7 @@ void show_gravity(imu_msg_t *imu_values){
 //            	leds[3] = 1;
 //            	leds[0] = 1;
 //				leds[1] = 1;
-				Instruction_Flow[Instruction_Counter] = BACKWARD;
+				Instruction_Flow[Instruction_Counter] = SOUTH;
 				++Instruction_Counter;
 				counter = 0;
 				break;
@@ -170,7 +181,7 @@ void show_gravity(imu_msg_t *imu_values){
 				leds[0] = 1;
 				leds[1] = 1;
 				leds[2] = 1;
-				Instruction_Flow[Instruction_Counter] = LEFT;
+				Instruction_Flow[Instruction_Counter] = WEST;
 				++Instruction_Counter;
 				counter = 0;
 				break;
@@ -207,7 +218,7 @@ void show_gravity(imu_msg_t *imu_values){
 				leds[1] = 1;
 				leds[2] = 1;
 				leds[3] = 1;
-				Instruction_Flow[Instruction_Counter] = FORWARD;
+				Instruction_Flow[Instruction_Counter] = NORTH;
 				++Instruction_Counter;
 				counter = 0;
 				break;
@@ -244,7 +255,7 @@ void show_gravity(imu_msg_t *imu_values){
 				leds[2] = 1;
 				leds[3] = 1;
 				leds[0] = 1;
-				Instruction_Flow[Instruction_Counter] = RIGHT;
+				Instruction_Flow[Instruction_Counter] = EST;
 				++Instruction_Counter;
 				counter = 0;
 				break;
@@ -275,6 +286,7 @@ void Mode_Detection(imu_msg_t *imu_values){
 		if(Mode == 1){
 			if(counter == 8 && !current_state){
 				Mode = MODE_2;
+				translation();
 				uint8_t bodyled =1;
 				palWritePad(GPIOB, GPIOB_LED_BODY, bodyled ? 0 : 1);
 				counter = 0;
@@ -288,6 +300,7 @@ void Mode_Detection(imu_msg_t *imu_values){
 		}else{
 			if(counter == 8 && !current_state){
 				Mode = MODE_1;
+				Instruction_Counter = 0;
 				uint8_t bodyled =0;
 				palWritePad(GPIOB, GPIOB_LED_BODY, bodyled ? 0 : 1);
 				counter = 0;
@@ -346,20 +359,151 @@ static THD_FUNCTION(InstructionFlowThread, arg) {
 	}
 }
 
+
+static direction route[35];
+static uint8_t size = 0;
+
+void go(direction dir, uint8_t motor_speed){
+
+	switch(dir){
+
+	case(LEFT) :
+		left_motor_set_speed(-TURNING_SPEED);
+		right_motor_set_speed(TURNING_SPEED);
+		break;
+
+	case(RIGHT) :
+		left_motor_set_speed(TURNING_SPEED);
+		right_motor_set_speed(-TURNING_SPEED);
+		break;
+
+	case(FORWARD) :
+		left_motor_set_speed(motor_speed);
+		right_motor_set_speed(motor_speed);
+		break;
+	}
+}
+
+void translation(){
+
+	switch(Instruction_Flow[0]){
+
+	case NORTH  :
+		route[0] = FORWARD;
+		size++;
+		break;
+
+	case(WEST) :
+		route[0] = LEFT;
+		size++;
+		route[1] = FORWARD;
+		size++;
+		break;
+
+	case(SOUTH) :
+		route[0] = RIGHT;
+		size++;
+		route[1] = RIGHT;
+		size++;
+		route[2] = FORWARD;
+		size++;
+		break;
+
+	case(EST) :
+		route[0] = RIGHT;
+		size++;
+		route[1] = FORWARD;
+		size++;
+		break;
+	}
+
+	for(int i=1; i<Instruction_Counter ; i++){
+
+		switch(Instruction_Flow[i]-Instruction_Flow[i-1]){
+
+		case -3 :
+			route[size] = RIGHT;
+			size++;
+			route[size] = FORWARD;
+			size++;
+			break;
+
+		case -2 :
+			route[size] = RIGHT;
+			size++;
+			route[size] = RIGHT;
+			size++;
+			route[size] = FORWARD;
+			size++;
+			break;
+
+		case -1 :
+			route[size] = LEFT;
+			size++;
+			route[size] = FORWARD;
+			size++;
+			break;
+
+		case 0 :
+			route[size] = FORWARD;
+			size++;
+			break;
+
+		case 1 :
+			route[size] = RIGHT;
+			size++;
+			route[size] = FORWARD;
+			size++;
+			break;
+
+		case 2 :
+			route[size] = RIGHT;
+			size++;
+			route[size] = RIGHT;
+			size++;
+			route[size] = FORWARD;
+			size++;
+			break;
+
+		case 3 :
+			route[size] = LEFT;
+			size++;
+			route[size] = FORWARD;
+			size++;
+			break;
+		}
+	}
+}
+
+
 static THD_WORKING_AREA(waInstructionExecutionThread, 128);
 static THD_FUNCTION(InstructionExecutionThread, arg) {
 
 	chRegSetThreadName(__FUNCTION__);
 	(void)arg;
 
-	while(1){
 
+	while(1){
 		if(Mode == MODE_2){
 			//function execute instruction
+			uint8_t i = 0;
+
+			while((i < size) && (Mode == MODE_2)){
+		        uint8_t motor_speed = get_selector()*SPEED_FACTOR;
+		        go(route[i], motor_speed);
+		        i++;
+		        chThdSleepMilliseconds(2000);
+			}
 		}
-		chThdSleepMilliseconds(400); //temps de sleep a determiner
+
+		left_motor_set_speed(0);
+		right_motor_set_speed(0);
+		size = 0;
+
+		chThdSleepMilliseconds(2000);
 	}
 }
+
 
 
 int main(void)
@@ -368,15 +512,21 @@ int main(void)
     halInit();
     chSysInit();
 
+
     imu_start(); //appel i2c_start() + lance la thread du imu.
+//    proximity_start();
+    motors_init();
 
     chThdCreateStatic(waModeSelectionThread, sizeof(waModeSelectionThread), NORMALPRIO, ModeSelectionThread, NULL); //j'arrive pas a changer la prio sans que ca bug
 	chThdCreateStatic(waInstructionFlowThread, sizeof(waInstructionFlowThread), NORMALPRIO, InstructionFlowThread, NULL);
 	chThdCreateStatic(waInstructionExecutionThread, sizeof(waInstructionExecutionThread), NORMALPRIO, InstructionExecutionThread, NULL);
+//	chThdCreateStatic(waDetectObstaclesThread, sizeof(waDetectObstaclesThread), NORMALPRIO, DetectObstaclesThread, NULL);
+
+
 
 
     /** Inits the Inter Process Communication bus. */
-    messagebus_init(&bus, &bus_lock, &bus_condvar);
+   messagebus_init(&bus, &bus_lock, &bus_condvar);
 
     while(1){
     	chThdSleepMilliseconds(100);
