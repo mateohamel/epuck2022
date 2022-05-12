@@ -145,7 +145,9 @@ void show_gravity(imu_msg_t *imu_values){
 //            	leds[0] = 1;
 //				leds[1] = 1;
 				Instruction_Flow[Instruction_Counter] = SOUTH;
-				++Instruction_Counter;
+				if (Instruction_Counter != 15){
+					++Instruction_Counter;
+				}
 				counter = 0;
 				break;
 			}
@@ -182,7 +184,9 @@ void show_gravity(imu_msg_t *imu_values){
 				leds[1] = 1;
 				leds[2] = 1;
 				Instruction_Flow[Instruction_Counter] = WEST;
-				++Instruction_Counter;
+				if (Instruction_Counter != 15){
+					++Instruction_Counter;
+				}
 				counter = 0;
 				break;
 			}
@@ -219,7 +223,9 @@ void show_gravity(imu_msg_t *imu_values){
 				leds[2] = 1;
 				leds[3] = 1;
 				Instruction_Flow[Instruction_Counter] = NORTH;
-				++Instruction_Counter;
+				if (Instruction_Counter != 15){
+					++Instruction_Counter;
+				}
 				counter = 0;
 				break;
             }
@@ -256,7 +262,9 @@ void show_gravity(imu_msg_t *imu_values){
 				leds[3] = 1;
 				leds[0] = 1;
 				Instruction_Flow[Instruction_Counter] = EST;
-				++Instruction_Counter;
+				if (Instruction_Counter != 15){
+					++Instruction_Counter;
+				}
 				counter = 0;
 				break;
 			}
