@@ -36,11 +36,15 @@ instruction Instruction_Flow[15] = {0};
 static uint8_t Instruction_Counter = 0;
 
 //define for Mode selection
+#define MODE_INIT 0 //mode de démarrage
 #define MODE_1 1 //rentrée d'instruction
 #define MODE_2 2 //excecution d'instruction
+#define MODE_3 3 //obstacle detecté
 
-uint8_t Mode = 3;
+uint8_t Mode = MODE_INIT;
 
+#define ON 1
+#define OFF 0
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
@@ -59,7 +63,6 @@ void led_charging(uint8_t *leds_tmp, uint8_t starting_led, uint8_t led_numbers) 
 		}
 	}
 }
-
 
 void show_gravity(imu_msg_t *imu_values){
 
@@ -282,15 +285,14 @@ void show_gravity(imu_msg_t *imu_values){
 
 void obstacle_detection(proximity_msg_t *prox_values){
 
-
-	 //arrêter les moteurs si IR1 ou IR8 détectent un obstacle
-	 if ((prox_values->ambient[0] - prox_values->reflected[0] > 100) && (prox_values->ambient[7] - prox_values->reflected[7] > 100)){
+	//arrêter les moteurs si IR1 ou IR8 détectent un obstacle
+	if ((prox_values->ambient[0] - prox_values->reflected[0] > 100) && (prox_values->ambient[7] - prox_values->reflected[7] > 100)){
 		left_motor_set_speed(0);
 		right_motor_set_speed(0);
-		uint8_t bodyled =1;
-		palWritePad(GPIOB, GPIOD_LED7, bodyled ? 0 : 1);
-		Mode = 3;
-	 }
+		Mode = MODE_3;
+		Instruction_Counter = 0;
+		Instruction_Flow[0] = BLANK;
+	}
 }
 
 void Mode_Detection(imu_msg_t *imu_values){
@@ -304,12 +306,12 @@ void Mode_Detection(imu_msg_t *imu_values){
     static bool current_state = false;
 
 	if(fabs(accell[2/*Z-AXIS*/]) < threshold_zh && fabs(accell[2/*Z-AXIS*/]) > threshold_zl && !(fabs(accell[X_AXIS]) > threshold_xy || fabs(accell[Y_AXIS]) > threshold_xy )){
-		if(Mode == 1){
+		if(Mode == MODE_1){ //MODE_1
 			if(counter == 8 && !current_state){
+				chThdSleepMilliseconds(500);
 				Mode = MODE_2;
 				translation();
-				uint8_t bodyled =1;
-				palWritePad(GPIOB, GPIOB_LED_BODY, bodyled ? 0 : 1);
+				palWritePad(GPIOB, GPIOB_LED_BODY, ON ? 0 : 1);
 				counter = 0;
 				current_state = true;
 			}else{
@@ -318,14 +320,16 @@ void Mode_Detection(imu_msg_t *imu_values){
 				}
 				++counter;
 			}
-		}else{
+		}else{ //MODE_2 or MODE_3
 			if(counter == 8 && !current_state){
 				Mode = MODE_1;
 				Instruction_Counter = 0;
-				uint8_t bodyled =0;
-				palWritePad(GPIOB, GPIOB_LED_BODY, bodyled ? 0 : 1);
+				Instruction_Flow[0] = BLANK;
+				palWritePad(GPIOB, GPIOB_LED_BODY, OFF ? 0 : 1);
 				counter = 0;
 				current_state = true;
+				left_motor_set_speed(0);
+				right_motor_set_speed(0);
 			}else{
 				if(counter > 8){
 					counter = 0;
@@ -334,7 +338,6 @@ void Mode_Detection(imu_msg_t *imu_values){
 			}
 		}
 	}else{
-//		counter=0;
 		current_state = false;
 	}
 }
@@ -376,7 +379,7 @@ static THD_FUNCTION(InstructionFlowThread, arg) {
 
 			show_gravity(&imu_values);
 		}
-		chThdSleepMilliseconds(400);
+		chThdSleepMilliseconds(300);
 	}
 }
 
@@ -516,7 +519,6 @@ static THD_FUNCTION(InstructionExecutionThread, arg) {
 		        chThdSleepMilliseconds(2000);
 			}
 		}
-
 		left_motor_set_speed(0);
 		right_motor_set_speed(0);
 		size = 0;
@@ -533,15 +535,30 @@ static THD_FUNCTION(DetectObstaclesThread, arg) {
 
 	messagebus_topic_t *prox_topic = messagebus_find_topic_blocking(&bus, "/proximity");
 	proximity_msg_t prox_values;
+	uint8_t bodyled_state;
 
 	while(1){
-
-		if(Mode == MODE_2){
+		switch(Mode){
+		case MODE_1:
+//			chThdSleepMilliseconds(100);
+			break;
+		case MODE_2:
+			bodyled_state = OFF;
 			messagebus_topic_wait(prox_topic, &prox_values, sizeof(prox_values));
-
 			obstacle_detection(&prox_values);
+//			chThdSleepMilliseconds(100);
+			break;
+		case MODE_3:
+			if(bodyled_state == OFF){
+				bodyled_state = ON;
+			}else{
+				bodyled_state = OFF;
+			}
+			palWritePad(GPIOB, GPIOB_LED_BODY, bodyled_state ? 0 : 1);
+//
+//			chThdSleepMilliseconds(500);
+			break;
 		}
-
 		chThdSleepMilliseconds(100);
 	}
 }
@@ -549,8 +566,6 @@ static THD_FUNCTION(DetectObstaclesThread, arg) {
 
 int main(void)
 {
-	uint8_t bodyled =1;
-	palWritePad(GPIOB, GPIOD_LED7, bodyled ? 1 : 0);
     halInit();
     chSysInit();
 
