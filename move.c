@@ -16,10 +16,11 @@
 
 #define TURNING_SPEED 158
 #define SPEED_FACTOR 60
+#define SPEED_OFFSET 140
 
 //INTERNAL FUNCTION
 
-void go(direction dir, uint8_t motor_speed){
+void go(direction dir, uint16_t motor_speed){
 
 	switch(dir){
 
@@ -55,7 +56,7 @@ static THD_FUNCTION(InstructionExecutionThread, arg) {
 			uint8_t i = 0;
 
 			while((i < size) && (get_mode() == MODE_2)){
-		        uint8_t motor_speed = get_selector()*SPEED_FACTOR;
+		        uint16_t motor_speed = get_selector()*SPEED_FACTOR + SPEED_OFFSET;
 		        go(get_route(i), motor_speed);
 		        i++;
 		        chThdSleepMilliseconds(2000);
