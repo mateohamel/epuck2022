@@ -370,13 +370,13 @@ void Mode_Detection(imu_msg_t *imu_values){
     static uint8_t counter = 0;
     static bool current_state = false;
 
-	if(fabs(accell[2/*Z-AXIS*/]) < threshold_zh && fabs(accell[2/*Z-AXIS*/]) > threshold_zl && !(fabs(accell[X_AXIS]) > threshold_xy || fabs(accell[Y_AXIS]) > threshold_xy )){
+	if(fabs(accell[Z_AXIS]) < threshold_zh && fabs(accell[Z_AXIS]) > threshold_zl && !(fabs(accell[X_AXIS]) > threshold_xy || fabs(accell[Y_AXIS]) > threshold_xy )){
 		if(Mode == MODE_1){ //MODE_1
 			if(counter == 8 && !current_state){
 				chThdSleepMilliseconds(500);
 				Mode = MODE_2;
-				translation();
 				palWritePad(GPIOB, GPIOB_LED_BODY, ON ? 0 : 1);
+				translation();
 				counter = 0;
 				current_state = true;
 			}else{
