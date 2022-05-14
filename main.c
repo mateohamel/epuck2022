@@ -122,31 +122,15 @@ void show_gravity(imu_msg_t *imu_values){
             switch(counter){
             case 2:
             	led_charging(leds, 2, 1);
-//            	leds[2] = 1;
-//				leds[3] = 0;
-//				leds[0] = 0;
-//				leds[1] = 0;
 				break;
             case 3:
             	led_charging(leds, 2, 2);
-//            	leds[2] = 1;
-//            	leds[3] = 1;
-//            	leds[0] = 0;
-//				leds[1] = 0;
 				break;
             case 4:
             	led_charging(leds, 2, 3);
-//            	leds[2] = 1;
-//            	leds[3] = 1;
-//            	leds[0] = 1;
-//				leds[1] = 0;
 				break;
             case 5:
             	led_charging(leds, 2, 4);
-//            	leds[2] = 1;
-//            	leds[3] = 1;
-//            	leds[0] = 1;
-//				leds[1] = 1;
 				Instruction_Flow[Instruction_Counter] = SOUTH;
 				if (Instruction_Counter != 15){
 					++Instruction_Counter;
@@ -164,28 +148,16 @@ void show_gravity(imu_msg_t *imu_values){
             }
             switch(counter){
             case 2:
-            	leds[3] = 1;
-				leds[0] = 0;
-				leds[1] = 0;
-				leds[2] = 0;
+            	led_charging(leds, 3, 1);
 				break;
             case 3:
-	            leds[3] = 1;
-				leds[0] = 1;
-				leds[1] = 0;
-				leds[2] = 0;
+            	led_charging(leds, 3, 2);
 				break;
             case 4:
-	            leds[3] = 1;
-				leds[0] = 1;
-				leds[1] = 1;
-				leds[2] = 0;
+            	led_charging(leds, 3, 3);
 				break;
             case 5:
-	            leds[3] = 1;
-				leds[0] = 1;
-				leds[1] = 1;
-				leds[2] = 1;
+            	led_charging(leds, 3, 4);
 				Instruction_Flow[Instruction_Counter] = WEST;
 				if (Instruction_Counter != 15){
 					++Instruction_Counter;
@@ -203,28 +175,16 @@ void show_gravity(imu_msg_t *imu_values){
             }
 			switch(counter){
 			case 2:
-				leds[0] = 1;
-				leds[1] = 0;
-				leds[2] = 0;
-				leds[3] = 0;
+            	led_charging(leds, 0, 1);
 				break;
 			case 3:
-				leds[0] = 1;
-				leds[1] = 1;
-				leds[2] = 0;
-				leds[3] = 0;
+            	led_charging(leds, 0, 2);
 				break;
 			case 4:
-				leds[0] = 1;
-				leds[1] = 1;
-				leds[2] = 1;
-				leds[3] = 0;
+            	led_charging(leds, 0, 3);
 				break;
 			case 5:
-				leds[0] = 1;
-				leds[1] = 1;
-				leds[2] = 1;
-				leds[3] = 1;
+            	led_charging(leds, 0, 4);
 				Instruction_Flow[Instruction_Counter] = NORTH;
 				if (Instruction_Counter != 15){
 					++Instruction_Counter;
@@ -242,28 +202,16 @@ void show_gravity(imu_msg_t *imu_values){
             }
 			switch(counter){
 			case 2:
-				leds[1] = 1;
-            	leds[2] = 0;
-				leds[3] = 0;
-				leds[0] = 0;
+            	led_charging(leds, 1, 1);
 				break;
 			case 3:
-    			leds[1] = 1;
-				leds[2] = 1;
-				leds[3] = 0;
-				leds[0] = 0;
+            	led_charging(leds, 1, 2);
 				break;
 			case 4:
-				leds[1] = 1;
-				leds[2] = 1;
-				leds[3] = 1;
-				leds[0] = 0;
+            	led_charging(leds, 1, 3);
 				break;
 			case 5:
-				leds[1] = 1;
-				leds[2] = 1;
-				leds[3] = 1;
-				leds[0] = 1;
+            	led_charging(leds, 1, 4);
 				Instruction_Flow[Instruction_Counter] = EST;
 				if (Instruction_Counter != 15){
 					++Instruction_Counter;
