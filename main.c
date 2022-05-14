@@ -12,7 +12,7 @@
 #include <sensors/proximity.h>
 #include <math.h>
 
-#include "selector.h"
+#include <selector.h>
 
 #include <arm_math.h>
 
@@ -25,6 +25,7 @@
 #define TURNING_SPEED 158
 #define SPEED_FACTOR 60
 #define SENSORS_THRESHOLD 5
+#define SPEED_OFFSET 140
 
 
 
@@ -387,7 +388,7 @@ static THD_FUNCTION(InstructionFlowThread, arg) {
 static direction route[35];
 static uint8_t size = 0;
 
-void go(direction dir, uint8_t motor_speed){
+void go(direction dir, uint16_t motor_speed){
 
 	switch(dir){
 
@@ -513,7 +514,7 @@ static THD_FUNCTION(InstructionExecutionThread, arg) {
 			uint8_t i = 0;
 
 			while((i < size) && (Mode == MODE_2)){
-		        uint8_t motor_speed = get_selector()*SPEED_FACTOR;
+		        uint16_t motor_speed = get_selector()*SPEED_FACTOR + SPEED_OFFSET;
 		        go(route[i], motor_speed);
 		        i++;
 		        chThdSleepMilliseconds(2000);
