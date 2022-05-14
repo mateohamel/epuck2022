@@ -34,21 +34,21 @@ static mode g_mode = INIT;
 
 
 instruction get_instruction_flow(uint8_t index);
-void set_instruction_flow(instruction, uint8_t index);
+void set_instruction_flow(instruction new_instruction, uint8_t index);
 
 uint8_t get_instruction_counter(void);
 void set_instruction_counter(uint8_t new_instruction_counter);
 void increase_instruction_counter(void);
 
 direction get_route(uint8_t index);
-void set_route(direction, uint8_t index);
+void set_route(direction new_direction, uint8_t index);
 
 uint8_t get_route_counter(void);
 void set_route_counter(uint8_t new_route_counter);
 void increase_route_counter(void);
 
 mode get_mode(void);
-void set_mode(mode);
+void set_mode(mode new_mode);
 
 
 #ifdef __cplusplus
