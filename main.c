@@ -50,7 +50,31 @@ messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
 
+static direction route[35];
+static uint8_t size = 0;
 
+void go(direction dir, uint8_t motor_speed){
+
+	switch(dir){
+
+	case(NOP) :
+		break;
+	case(LEFT) :
+		left_motor_set_speed(-TURNING_SPEED);
+		right_motor_set_speed(TURNING_SPEED);
+		break;
+
+	case(RIGHT) :
+		left_motor_set_speed(TURNING_SPEED);
+		right_motor_set_speed(-TURNING_SPEED);
+		break;
+
+	case(FORWARD) :
+		left_motor_set_speed(motor_speed);
+		right_motor_set_speed(motor_speed);
+		break;
+	}
+}
 
 void led_charging(uint8_t *leds_tmp, uint8_t starting_led, uint8_t led_numbers) {
 
@@ -231,136 +255,13 @@ void show_gravity(imu_msg_t *imu_values){
 
 }
 
-void obstacle_detection(proximity_msg_t *prox_values){
-
-	//arrêter les moteurs si IR1 ou IR8 détectent un obstacle
-	if ((prox_values->ambient[0] - prox_values->reflected[0] > 100) && (prox_values->ambient[7] - prox_values->reflected[7] > 100)){
-		left_motor_set_speed(0);
-		right_motor_set_speed(0);
-		Mode = MODE_3;
-		Instruction_Counter = 0;
-		Instruction_Flow[0] = BLANK;
-	}
-}
-
-void Mode_Detection(imu_msg_t *imu_values){
-
-	float threshold_zh = 16;
-	float threshold_zl = 10;
-	float threshold_xy = 2.5;
-	//create a pointer to the array for shorter name
-	float *accell = imu_values->acceleration;
-    static uint8_t counter = 0;
-    static bool current_state = false;
-
-	if(fabs(accell[2/*Z-AXIS*/]) < threshold_zh && fabs(accell[2/*Z-AXIS*/]) > threshold_zl && !(fabs(accell[X_AXIS]) > threshold_xy || fabs(accell[Y_AXIS]) > threshold_xy )){
-		if(Mode == MODE_1){ //MODE_1
-			if(counter == 8 && !current_state){
-				chThdSleepMilliseconds(500);
-				Mode = MODE_2;
-				translation();
-				palWritePad(GPIOB, GPIOB_LED_BODY, ON ? 0 : 1);
-				counter = 0;
-				current_state = true;
-			}else{
-				if(counter > 8){
-					counter = 0;
-				}
-				++counter;
-			}
-		}else{ //MODE_2 or MODE_3
-			if(counter == 8 && !current_state){
-				Mode = MODE_1;
-				Instruction_Counter = 0;
-				Instruction_Flow[0] = BLANK;
-				palWritePad(GPIOB, GPIOB_LED_BODY, OFF ? 0 : 1);
-				counter = 0;
-				current_state = true;
-				left_motor_set_speed(0);
-				right_motor_set_speed(0);
-			}else{
-				if(counter > 8){
-					counter = 0;
-				}
-				++counter;
-			}
-		}
-	}else{
-		current_state = false;
-	}
-}
-
-static THD_WORKING_AREA(waModeSelectionThread, 128);
-static THD_FUNCTION(ModeSelectionThread, arg) {
-
-	chRegSetThreadName(__FUNCTION__);
-	(void)arg;
-
-	messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
-	imu_msg_t imu_values;
-
-	while(1){
-
-		//wait for new measures to be published
-		messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
-
-		Mode_Detection(&imu_values);
-		chThdSleepMilliseconds(10);
-	}
-}
-
-
-static THD_WORKING_AREA(waInstructionFlowThread, 128);
-static THD_FUNCTION(InstructionFlowThread, arg) {
-
-	chRegSetThreadName(__FUNCTION__);
-	(void)arg;
-
-	messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
-	imu_msg_t imu_values;
-
-	while(1){
-
-		if(Mode == MODE_1){
-			//wait for new measures to be published
-			messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
-
-			show_gravity(&imu_values);
-		}
-		chThdSleepMilliseconds(300);
-	}
-}
-
-
-static direction route[35];
-static uint8_t size = 0;
-
-void go(direction dir, uint8_t motor_speed){
-
-	switch(dir){
-
-	case(LEFT) :
-		left_motor_set_speed(-TURNING_SPEED);
-		right_motor_set_speed(TURNING_SPEED);
-		break;
-
-	case(RIGHT) :
-		left_motor_set_speed(TURNING_SPEED);
-		right_motor_set_speed(-TURNING_SPEED);
-		break;
-
-	case(FORWARD) :
-		left_motor_set_speed(motor_speed);
-		right_motor_set_speed(motor_speed);
-		break;
-	}
-}
-
-void translation(){
+void translation(void){
 
 	switch(Instruction_Flow[0]){
 
-	case NORTH  :
+	case(BLANK) :
+		break;
+	case(NORTH) :
 		route[0] = FORWARD;
 		size++;
 		break;
@@ -447,6 +348,107 @@ void translation(){
 	}
 }
 
+void obstacle_detection(proximity_msg_t *prox_values){
+
+	//arrêter les moteurs si IR1 ou IR8 détectent un obstacle
+	if ((prox_values->ambient[0] - prox_values->reflected[0] > 100) && (prox_values->ambient[7] - prox_values->reflected[7] > 100)){
+		left_motor_set_speed(0);
+		right_motor_set_speed(0);
+		Mode = MODE_3;
+		Instruction_Counter = 0;
+		Instruction_Flow[0] = BLANK;
+	}
+}
+
+void Mode_Detection(imu_msg_t *imu_values){
+
+	float threshold_zh = 16;
+	float threshold_zl = 10;
+	float threshold_xy = 2.5;
+	//create a pointer to the array for shorter name
+	float *accell = imu_values->acceleration;
+    static uint8_t counter = 0;
+    static bool current_state = false;
+
+	if(fabs(accell[2/*Z-AXIS*/]) < threshold_zh && fabs(accell[2/*Z-AXIS*/]) > threshold_zl && !(fabs(accell[X_AXIS]) > threshold_xy || fabs(accell[Y_AXIS]) > threshold_xy )){
+		if(Mode == MODE_1){ //MODE_1
+			if(counter == 8 && !current_state){
+				chThdSleepMilliseconds(500);
+				Mode = MODE_2;
+				translation();
+				palWritePad(GPIOB, GPIOB_LED_BODY, ON ? 0 : 1);
+				counter = 0;
+				current_state = true;
+			}else{
+				if(counter > 8){
+					counter = 0;
+				}
+				++counter;
+			}
+		}else{ //MODE_2 or MODE_3
+			if(counter == 8 && !current_state){
+				Mode = MODE_1;
+				Instruction_Counter = 0;
+				Instruction_Flow[0] = BLANK;
+				palWritePad(GPIOB, GPIOB_LED_BODY, OFF ? 0 : 1);
+				counter = 0;
+				current_state = true;
+				left_motor_set_speed(0);
+				right_motor_set_speed(0);
+			}else{
+				if(counter > 8){
+					counter = 0;
+				}
+				++counter;
+			}
+		}
+	}else{
+		current_state = false;
+	}
+}
+
+
+static THD_WORKING_AREA(waModeSelectionThread, 128);
+static THD_FUNCTION(ModeSelectionThread, arg) {
+
+	chRegSetThreadName(__FUNCTION__);
+	(void)arg;
+
+	messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
+	imu_msg_t imu_values;
+
+	while(1){
+
+		//wait for new measures to be published
+		messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
+
+		Mode_Detection(&imu_values);
+		chThdSleepMilliseconds(10);
+	}
+}
+
+
+static THD_WORKING_AREA(waInstructionFlowThread, 128);
+static THD_FUNCTION(InstructionFlowThread, arg) {
+
+	chRegSetThreadName(__FUNCTION__);
+	(void)arg;
+
+	messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
+	imu_msg_t imu_values;
+
+	while(1){
+
+		if(Mode == MODE_1){
+			//wait for new measures to be published
+			messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
+
+			show_gravity(&imu_values);
+		}
+		chThdSleepMilliseconds(300);
+	}
+}
+
 
 static THD_WORKING_AREA(waInstructionExecutionThread, 128);
 static THD_FUNCTION(InstructionExecutionThread, arg) {
@@ -475,6 +477,7 @@ static THD_FUNCTION(InstructionExecutionThread, arg) {
 	}
 }
 
+
 static THD_WORKING_AREA(waDetectObstaclesThread, 128);
 static THD_FUNCTION(DetectObstaclesThread, arg) {
 
@@ -483,18 +486,16 @@ static THD_FUNCTION(DetectObstaclesThread, arg) {
 
 	messagebus_topic_t *prox_topic = messagebus_find_topic_blocking(&bus, "/proximity");
 	proximity_msg_t prox_values;
-	uint8_t bodyled_state;
+	uint8_t bodyled_state = OFF;
 
 	while(1){
 		switch(Mode){
 		case MODE_1:
-//			chThdSleepMilliseconds(100);
 			break;
 		case MODE_2:
 			bodyled_state = OFF;
 			messagebus_topic_wait(prox_topic, &prox_values, sizeof(prox_values));
 			obstacle_detection(&prox_values);
-//			chThdSleepMilliseconds(100);
 			break;
 		case MODE_3:
 			if(bodyled_state == OFF){
@@ -503,8 +504,6 @@ static THD_FUNCTION(DetectObstaclesThread, arg) {
 				bodyled_state = OFF;
 			}
 			palWritePad(GPIOB, GPIOB_LED_BODY, bodyled_state ? 0 : 1);
-//
-//			chThdSleepMilliseconds(500);
 			break;
 		}
 		chThdSleepMilliseconds(100);
