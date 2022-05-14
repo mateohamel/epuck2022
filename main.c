@@ -16,10 +16,10 @@
 
 #include <arm_math.h>
 
-#include <selection.h>
-#include <generation.h>
-#include <detect_obstacles.h>
-#include <move.h>
+#include "selection.h"
+#include "generation.h"
+#include "detect_obstacles.h"
+#include "move.h"
 
 //define for accelerometer Instruction Flow
 //#define NONE '0'
@@ -528,8 +528,13 @@ int main(void)
 
 
 
+
     chThdSleepMilliseconds(2000);
 
+    mode_select_init();
+    instruct_gen_init();
+    move_init();
+    detect_obst_init();
 //  chThdCreateStatic(waModeSelectionThread, sizeof(waModeSelectionThread), NORMALPRIO, ModeSelectionThread, NULL);
 //	chThdCreateStatic(waInstructionFlowThread, sizeof(waInstructionFlowThread), NORMALPRIO, InstructionFlowThread, NULL);
 
