@@ -19,7 +19,7 @@ typedef enum {NO_DIRECTION, FORWARD, RIGHT,LEFT} direction;
 typedef enum {INIT, MODE_1, MODE_2, MODE_3} mode;
 
 /** Array containing the instructions given to the e-puck. */
-instruction g_intruction_flow[MAX_INSTRUCTIONS] = {0};
+instruction g_instruction_flow[MAX_INSTRUCTIONS] = {0};
 
 /** Counter keeping track of how many instructions were given.  */
 static uint8_t g_instruction_counter = 0;
