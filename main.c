@@ -15,11 +15,11 @@
 // Module headers
 
 #include <main.h>
-#include <selection.h>
-#include <generation.h>
-#include <detect_obstacles.h>
-#include <move.h>
-#include <globals.h>
+#include "m_collect_instr.h"
+#include "m_detect_obst.h"
+#include "m_execute_dir.h"
+#include "m_globals.h"
+#include "m_select_mode.h"
 
 /*===========================================================================*/
 /* Module local functions.                                                   */
@@ -33,7 +33,6 @@ static void modules_init(void){
     halInit();
     chSysInit();
     motors_init();
-
     msgbus_init();
 	proximity_start();
     imu_start();
@@ -56,8 +55,7 @@ static void threads_init(void){
 /* Main function.                                                   		 */
 /*===========================================================================*/
 
-int main(void)
-{
+int main(void){
 	modules_init();
     chThdSleepMilliseconds(2000);
     threads_init();
@@ -71,7 +69,6 @@ int main(void)
 #define STACK_CHK_GUARD 0xe2dee396
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
 
-void __stack_chk_fail(void)
-{
+void __stack_chk_fail(void){
     chSysHalt("Stack smashing detected");
 }

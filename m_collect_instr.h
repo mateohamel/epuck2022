@@ -1,10 +1,10 @@
 /**
- * @file    generation.h
+ * @file    m_collect_instr.h
  * @brief   External declarations for the Instruction generation module.
  */
 
-#ifndef GENERATION_H_
-#define GENERATION_H_
+#ifndef M_COLLECT_INSTR_H_
+#define M_COLLECT_INSTR_H_
 
 
 /*===========================================================================*/
@@ -19,4 +19,4 @@
 void instruct_gen_init(void);
 
 
-#endif /* GENERATION_H_ */
+#endif /* M_COLLECT_INSTR_H_ */

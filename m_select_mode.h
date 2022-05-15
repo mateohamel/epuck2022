@@ -1,10 +1,10 @@
 /**
- * @file    selection.h
+ * @file    m_select_mode.h
  * @brief   External declarations for the Mode selection module.
  */
 
-#ifndef SELECTION_H_
-#define SELECTION_H_
+#ifndef M_SELECT_MODE_H_
+#define M_SELECT_MODE_H_
 
 
 /*===========================================================================*/
@@ -19,4 +19,4 @@
 void mode_select_init(void);
 
 
-#endif /* SELECTION_H_ */
+#endif /* M_SELECT_MODE_H_ */

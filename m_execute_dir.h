@@ -1,10 +1,10 @@
 /**
- * @file    move.h
+ * @file    m_execute_dir.h
  * @brief   External declarations for the Movement of the robot module.
  */
 
-#ifndef MOVE_H_
-#define MOVE_H_
+#ifndef M_EXECUTE_DIR_H_
+#define M_EXECUTE_DIR_H_
 
 
 /*===========================================================================*/
@@ -19,4 +19,4 @@
 void move_init(void);
 
 
-#endif /* MOVE_H_ */
+#endif /* M_EXECUTE_DIR_H_ */

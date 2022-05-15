@@ -1,5 +1,5 @@
 /**
- * @file    generation.c
+ * @file    m_detect_obst.c
  * @brief   Module File. Handles the detection of obstacles using the proximity sensor.
  */
 
@@ -13,8 +13,8 @@
 
 // Module headers
 
-#include <globals.h>
-#include <detect_obstacles.h>
+#include <m_detect_obst.h>
+#include "m_globals.h"
 
 
 /*===========================================================================*/

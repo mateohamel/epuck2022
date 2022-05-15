@@ -1,5 +1,5 @@
 /**
- * @file    globals.c
+ * @file    m_globals.c
  * @brief   Complementary File. Creation of getters and setters of our global variables.
  * 			Globals source and header files are used to give robustness to the project even with
  * 			the use of global variables.
@@ -14,7 +14,7 @@
 
 // Module headers
 
-#include <globals.h>
+#include <m_globals.h>
 
 
 /*===========================================================================*/
