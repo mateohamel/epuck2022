@@ -12,6 +12,7 @@
 #include <math.h>
 #include <chsys.h>
 #include <hal.h>
+#include "globals.h"
 
 
 //DEFINE
@@ -21,6 +22,8 @@
 #define LED_3 '3'
 #define LED_5 '5'
 #define LED_7 '7'
+
+extern messagebus_t bus;
 
 //INTERNAL FUNCTION
 
@@ -103,7 +106,7 @@ void show_gravity(imu_msg_t *imu_values){
 				break;
             case 5:
             	led_charging(leds, 2, 4);
-				set_instruction_flow(get_instruction_counter(), SOUTH);
+				set_instruction_flow(SOUTH, get_instruction_counter());
 				if (get_instruction_counter() != 15){
 					increase_instruction_counter();
 				}
@@ -130,8 +133,8 @@ void show_gravity(imu_msg_t *imu_values){
 				break;
             case 5:
             	led_charging(leds, 3, 4);
-				set_instruction_flow(get_instruction_counter(), WEST);
-				if (get_instruction_counter != 15){
+				set_instruction_flow(WEST, get_instruction_counter());
+				if (get_instruction_counter() != 15){
 					increase_instruction_counter();
 				}
 				counter = 0;
@@ -157,7 +160,7 @@ void show_gravity(imu_msg_t *imu_values){
 				break;
 			case 5:
             	led_charging(leds, 0, 4);
-				set_instruction_flow(get_instruction_counter(), NORTH);
+				set_instruction_flow(NORTH, get_instruction_counter());
 				if (get_instruction_counter() != 15){
 					increase_instruction_counter();
 				}
@@ -184,7 +187,7 @@ void show_gravity(imu_msg_t *imu_values){
 				break;
 			case 5:
             	led_charging(leds, 1, 4);
-				set_instruction_flow(get_instruction_counter(), EST);
+				set_instruction_flow(EST, get_instruction_counter());
 				if (get_instruction_counter() != 15){
 					increase_instruction_counter();
 				}

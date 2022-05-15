@@ -5,7 +5,27 @@
  *      Author: Romane
  */
 
+#include "msgbus/messagebus.h"
+#include "ch.h"
+#include "globals.h"
 
+/** Array containing the instructions given to the e-puck. */
+instruction g_instruction_flow[MAX_INSTRUCTIONS] = {0};
+
+/** Counter keeping track of how many instructions were given.  */
+uint8_t g_instruction_counter = 0;
+
+/** Array containing the route the e-puck has to follow.  */
+direction g_route[MAX_DIRECTIONS];
+
+/** Counter keeping track of how many directions have to be followed.  */
+uint8_t g_route_counter = 0;
+
+mode g_mode = INIT;
+
+messagebus_t bus;
+MUTEX_DECL(bus_lock);
+CONDVAR_DECL(bus_condvar);
 
 instruction get_instruction_flow(uint8_t index){
 	return g_instruction_flow[index];
@@ -64,4 +84,9 @@ mode get_mode(void){
 void set_mode(mode new_mode){
 	g_mode = new_mode;
 	return;
+}
+
+void msgbus_init(void){
+	/** Inits the Inter Process Communication bus. */
+    messagebus_init(&bus, &bus_lock, &bus_condvar);
 }

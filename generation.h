@@ -11,5 +11,4 @@
 void instruct_gen_init(void);
 
 
-
 #endif /* GENERATION_H_ */

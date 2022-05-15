@@ -1,36 +1,25 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include "msgbus/messagebus.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-#define MAX_INSTRUCTIONS	10
-#define MAX_DIRECTIONS		3 * MAX_INSTRUCTIONS
 
 /** Enum used for the the instructions. */
 typedef enum {NO_INSTRUCTION, NORTH, EST, SOUTH, WEST} instruction;
 
 /** Enum used for the direction in which the e-puck has to go.  */
-typedef enum {NO_DIRECTION, FORWARD, RIGHT,LEFT} direction;
+typedef enum {NO_DIRECTION, STRAIGHT, RIGHT,LEFT} direction;
 
 /** Enum used for the modes .  */
 typedef enum {INIT, MODE_1, MODE_2, MODE_3} mode;
 
-/** Array containing the instructions given to the e-puck. */
-instruction g_instruction_flow[MAX_INSTRUCTIONS] = {0};
-
-/** Counter keeping track of how many instructions were given.  */
-static uint8_t g_instruction_counter = 0;
-
-/** Array containing the route the e-puck has to follow.  */
-static direction g_route[MAX_DIRECTIONS];
-
-/** Counter keeping track of how many directions have to be followed.  */
-static uint8_t g_route_counter = 0;
-
-static mode g_mode = INIT;
+#define MAX_INSTRUCTIONS	10
+#define MAX_DIRECTIONS		3 * MAX_INSTRUCTIONS
 
 
 instruction get_instruction_flow(uint8_t index);
@@ -50,6 +39,7 @@ void increase_route_counter(void);
 mode get_mode(void);
 void set_mode(mode new_mode);
 
+void msgbus_init(void);
 
 #ifdef __cplusplus
 }

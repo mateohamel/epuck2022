@@ -10,11 +10,15 @@
 #include <sensors/imu.h>
 #include <hal.h>
 #include <motors.h>
+#include "globals.h"
+#include <math.h>
 
 //DEFINE
 
 #define ON 1
 #define OFF 0
+
+extern messagebus_t bus;
 
 //INTERNAL FUNCTION
 
@@ -22,33 +26,33 @@ void translation(void){
 
 	switch(get_instruction_flow(0)){
 
-	case(BLANK) :
+	case(NO_INSTRUCTION) :
 		break;
 	case(NORTH) :
-		set_route(0, FORWARD);
+		set_route(STRAIGHT, 0);
 		increase_route_counter();
 		break;
 
 	case(WEST) :
-		set_route(0, LEFT);
+		set_route(LEFT, 0);
 		increase_route_counter();
-		set_route(1, FORWARD);
+		set_route(STRAIGHT, 1);
 		increase_route_counter();
 		break;
 
 	case(SOUTH) :
-		set_route(0, RIGHT);
+		set_route(RIGHT, 0);
 		increase_route_counter();
-		set_route(1, RIGHT);
+		set_route(RIGHT, 1);
 		increase_route_counter();
-		set_route(2, FORWARD);
+		set_route(STRAIGHT, 2);
 		increase_route_counter();
 		break;
 
 	case(EST) :
-		set_route(0, RIGHT);
+		set_route(RIGHT, 0);
 		increase_route_counter();
-		set_route(1, FORWARD);
+		set_route(STRAIGHT, 1);
 		increase_route_counter();
 		break;
 	}
@@ -58,53 +62,53 @@ void translation(void){
 		switch(get_instruction_flow(i)-get_instruction_flow(i-1)){
 
 		case -3 :
-			set_route( get_route_counter(), RIGHT);
+			set_route(RIGHT, get_route_counter());
 			increase_route_counter();
-			set_route( get_route_counter(), FORWARD);
+			set_route(STRAIGHT, get_route_counter());
 			increase_route_counter();
 			break;
 
 		case -2 :
-			set_route( get_route_counter(), RIGHT);
+			set_route(RIGHT, get_route_counter());
 			increase_route_counter();
-			set_route( get_route_counter(), RIGHT);
+			set_route(RIGHT, get_route_counter());
 			increase_route_counter();
-			set_route( get_route_counter(), FORWARD);
+			set_route(STRAIGHT, get_route_counter());
 			increase_route_counter();
 			break;
 
 		case -1 :
-			set_route( get_route_counter(), LEFT);
+			set_route( LEFT, get_route_counter());
 			increase_route_counter();
-			set_route( get_route_counter(), FORWARD);
+			set_route(STRAIGHT, get_route_counter());
 			increase_route_counter();
 			break;
 
 		case 0 :
-			set_route( get_route_counter(), FORWARD);
+			set_route(STRAIGHT, get_route_counter());
 			increase_route_counter();
 			break;
 
 		case 1 :
-			set_route( get_route_counter(), RIGHT);
+			set_route(RIGHT, get_route_counter());
 			increase_route_counter();
-			set_route( get_route_counter(), FORWARD);
+			set_route(STRAIGHT, get_route_counter());
 			increase_route_counter();
 			break;
 
 		case 2 :
-			set_route( get_route_counter(), RIGHT);
+			set_route(RIGHT, get_route_counter());
 			increase_route_counter();
-			set_route( get_route_counter(), RIGHT);
+			set_route(RIGHT, get_route_counter());
 			increase_route_counter();
-			set_route( get_route_counter(), FORWARD);
+			set_route(STRAIGHT, get_route_counter());
 			increase_route_counter();
 			break;
 
 		case 3 :
-			set_route( get_route_counter(), LEFT);
+			set_route(LEFT, get_route_counter());
 			increase_route_counter();
-			set_route( get_route_counter(), FORWARD);
+			set_route(STRAIGHT, get_route_counter());
 			increase_route_counter();
 			break;
 		}
@@ -140,7 +144,7 @@ void Mode_Detection(imu_msg_t *imu_values){
 			if(counter == 8 && !current_state){
 				set_mode(MODE_1);
 				set_instruction_counter(0);
-				set_instruction_flow(0,BLANK);
+				set_instruction_flow(0,NO_INSTRUCTION);
 				palWritePad(GPIOB, GPIOB_LED_BODY, OFF ? 0 : 1);
 				counter = 0;
 				current_state = true;
@@ -180,7 +184,6 @@ static THD_FUNCTION(ModeSelectionThread, arg) {
 //EXTERNAL FUNCTION
 
 void mode_select_init(void){
-    imu_start();
     chThdCreateStatic(waModeSelectionThread, sizeof(waModeSelectionThread), NORMALPRIO, ModeSelectionThread, NULL);
 }
 

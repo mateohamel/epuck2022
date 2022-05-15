@@ -11,5 +11,4 @@
 void mode_select_init(void);
 
 
-
 #endif /* SELECTION_H_ */

@@ -14,6 +14,7 @@ CSRC += ./main.c \
 		./generation.c \
 		./move.c \
 		./selection.c \
+		./globals.c \
 
 #Header folders to include
 INCDIR += 

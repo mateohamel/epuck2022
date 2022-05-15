@@ -11,5 +11,4 @@
 void detect_obst_init(void);
 
 
-
 #endif /* DETECT_OBSTACLES_H_ */

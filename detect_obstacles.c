@@ -10,12 +10,14 @@
 #include <motors.h>
 #include <sensors/proximity.h>
 #include <msgbus/messagebus.h>
-
+#include "globals.h"
 
 //DEFINE
 
 #define ON 1
 #define OFF 0
+
+extern messagebus_t bus;
 
 //INTERNAL FUNCTION
 
@@ -27,7 +29,7 @@ void obstacle_detection(proximity_msg_t *prox_values){
 		right_motor_set_speed(0);
 		set_mode(MODE_3);
 		set_instruction_counter(0);
-		set_instruction_flow(0, BLANK);
+		set_instruction_flow(0, NO_INSTRUCTION);
 	}
 }
 
@@ -44,6 +46,8 @@ static THD_FUNCTION(DetectObstaclesThread, arg) {
 
 	while(1){
 		switch(get_mode()){
+		case INIT:
+			break;
 		case MODE_1:
 			break;
 		case MODE_2:
@@ -68,6 +72,5 @@ static THD_FUNCTION(DetectObstaclesThread, arg) {
 //EXTERNAL FUNCTION
 
 void detect_obst_init(void){
-	proximity_start();
 	chThdCreateStatic(waDetectObstaclesThread, sizeof(waDetectObstaclesThread), NORMALPRIO, DetectObstaclesThread, NULL);
 }

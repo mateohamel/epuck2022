@@ -11,6 +11,8 @@
 #include "selector.h"
 #include <motors.h>
 #include "move.h"
+#include "globals.h"
+
 
 //DEFINE
 
@@ -24,19 +26,19 @@ void go(direction dir, uint16_t motor_speed){
 
 	switch(dir){
 
-	case(NOP) :
+	case(NO_DIRECTION):
 		break;
-	case(LEFT) :
+	case(LEFT):
 		left_motor_set_speed(-TURNING_SPEED);
 		right_motor_set_speed(TURNING_SPEED);
 		break;
 
-	case(RIGHT) :
+	case(RIGHT):
 		left_motor_set_speed(TURNING_SPEED);
 		right_motor_set_speed(-TURNING_SPEED);
 		break;
 
-	case(FORWARD) :
+	case(STRAIGHT):
 		left_motor_set_speed(motor_speed);
 		right_motor_set_speed(motor_speed);
 		break;
@@ -55,7 +57,7 @@ static THD_FUNCTION(InstructionExecutionThread, arg) {
 			//function execute instruction
 			uint8_t i = 0;
 
-			while((i < size) && (get_mode() == MODE_2)){
+			while((i < get_route_counter()) && (get_mode() == MODE_2)){
 		        uint16_t motor_speed = get_selector()*SPEED_FACTOR + SPEED_OFFSET;
 		        go(get_route(i), motor_speed);
 		        i++;
@@ -64,7 +66,7 @@ static THD_FUNCTION(InstructionExecutionThread, arg) {
 		}
 		left_motor_set_speed(0);
 		right_motor_set_speed(0);
-		size = 0;
+		set_route_counter(0);
 
 		chThdSleepMilliseconds(2000);
 	}
@@ -73,6 +75,5 @@ static THD_FUNCTION(InstructionExecutionThread, arg) {
 //EXTERNAL FUNCTION
 
 void move_init(void){
-    motors_init();
 	chThdCreateStatic(waInstructionExecutionThread, sizeof(waInstructionExecutionThread), NORMALPRIO, InstructionExecutionThread, NULL);
 }
