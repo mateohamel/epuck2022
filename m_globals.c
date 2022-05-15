@@ -37,7 +37,7 @@ direction g_route[MAX_DIRECTIONS];
 uint8_t g_route_counter = 0;
 
 
-/** Variables representing the current mode of the robot.	*/
+/** Variable representing the current mode of the robot.	*/
 mode g_mode = INIT;
 
 
@@ -56,6 +56,7 @@ CONDVAR_DECL(bus_condvar);
 
 /**
  * @brief               Getter and Setter for the table of instruction: 'g_instruction_flow'.
+ *
  * @return              Getter: g_instruction_flow		Setter: none
  */
 
@@ -71,7 +72,8 @@ void set_instruction_flow(instruction new_instruction, uint8_t index){
 
 /**
  * @brief               Getter and Setter for the counter of the previous table: 'g_instruction_counter'.
- * 						The increase function ables to increment the counter.
+ * 						The increase function increments the counter by one.
+ *
  * @return              Getter: g_instruction_counter 	Setter: none
  */
 
@@ -92,6 +94,7 @@ void increase_instruction_counter(void){
 
 /**
  * @brief               Getter and Setter for the table of directions: 'g_route'.
+ *
  * @return              Getter: g_route					Setter: none
  */
 
@@ -107,7 +110,8 @@ void set_route(direction new_direction, uint8_t index){
 
 /**
  * @brief               Getter and Setter for the counter of the previous table: 'g_route_counter'.
- * 						The increase function ables to increment the counter.
+ * 						The increase function increments the counter by one.
+ *
  * @return              Getter: g_route_counter 	Setter: none
  */
 
@@ -128,6 +132,7 @@ void increase_route_counter(void){
 
 /**
  * @brief               Getter and Setter for the current mode of the robot: 'g_mode'.
+ *
  * @return              Getter: g_mode					Setter: none
  */
 
@@ -143,6 +148,7 @@ void set_mode(mode new_mode){
 
 /**
  * @brief               Initialize the Inter Process Communication bus.
+ *
  * @return              none
  */
 

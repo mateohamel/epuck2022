@@ -13,6 +13,7 @@
 
 /**
  * @brief               Initializes the Instruction generation thread
+ *
  * @return              none
  */
 

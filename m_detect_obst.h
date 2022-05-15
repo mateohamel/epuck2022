@@ -12,7 +12,7 @@
 /*===========================================================================*/
 
 /**
- * @brief               Initializes the Detection of obstacle using the proximity sensor thread.
+ * @brief               Initializes obstacle detection using the proximity sensor thread.
  * @return              none
  */
 

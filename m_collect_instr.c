@@ -26,11 +26,12 @@
 /* Module constants.                                                         */
 /*===========================================================================*/
 
-#define NONE '0'
-#define LED_1 '1'
-#define LED_3 '3'
-#define LED_5 '5'
-#define LED_7 '7'
+#define NONE			'0'
+#define LED_1			'1'
+#define LED_3			'3'
+#define LED_5			'5'
+#define LED_7			'7'
+#define XY_THRESHOLD	3     //threshold value to not use the leds when the robot is too horizontal
 
 
 /*===========================================================================*/
@@ -45,9 +46,11 @@ extern messagebus_t bus;
 /*===========================================================================*/
 
 /**
- * @brief				Modify the LEDs array, put to 1 the starting led and a precise number of the consecutive LEDs (clockwise).
- * @param starting_led	index of 'leds_tmp' according to the angle measured.
- * @param led_numbers	represent the number of LEDs to activate.
+ * @brief				Modify the LEDs array, put to 1 the starting led and a precise number of the following LEDs (clockwise).
+ *
+ * @param starting_led	index of 'leds_tmp' according to the measured angle.
+ * @param led_numbers	represent how many LEDs to activate.
+ *
  * @return              none
  *
 */
@@ -66,9 +69,11 @@ static void led_charging(uint8_t *leds_tmp, uint8_t starting_led, uint8_t led_nu
 
 
 /**
- * @brief				Set LEDs to 1 according to the counter to symbolize the charging of the instruction.
+ * @brief				Set LEDs to 1 according to the counter to symbolize instruction charging.
+ *
  * @param cardinal_dir	NO_INSTRUCTION, NORTH, EST, SOUTH, WEST
  * @param current_led	index of 'leds_tmp' according to the angle measured.
+ *
  * @return              none
  *
 */
@@ -99,7 +104,9 @@ static bool led_counter(uint8_t *leds_tmp, uint8_t counter, uint8_t current_led,
 /**
  * @brief				Retrieval of the accelerometer x and y-values and use of a threshold.
  * 						After a set counter, modification of instruction_flow using getters and setters.
- * @param imu_values	pointer to the message containing measurement of the IMU.
+ *
+ * @param imu_values	pointer to the message containing the IMU measurements.
+ *
  * @return              none
  *
 */
@@ -110,8 +117,7 @@ static void show_gravity(imu_msg_t *imu_values){
     //select which one to turn on
 	uint8_t leds[4] = {0,0,0,0};
 
-    //threshold value to not use the leds when the robot is too horizontal
-    float threshold = 3;
+
     //create a pointer to the array for shorter name
     float *accel = imu_values->acceleration;
     static uint8_t counter = 0;
@@ -136,10 +142,10 @@ static void show_gravity(imu_msg_t *imu_values){
     *       FRONT
     */
 
-    if(fabs(accel[X_AXIS]) > threshold || fabs(accel[Y_AXIS]) > threshold){
+    if(fabs(accel[X_AXIS]) > XY_THRESHOLD || fabs(accel[Y_AXIS]) > XY_THRESHOLD){
 
         chSysLock();
-        //clock wise angle in rad with 0 being the back of the e-puck2 (Y axis of the IMU)
+        //clockwise angle in rad with 0 being the back of the e-puck2 (Y axis of the IMU)
         float angle = atan2(accel[X_AXIS], accel[Y_AXIS]);
         chSysUnlock();
 
@@ -199,7 +205,7 @@ static void show_gravity(imu_msg_t *imu_values){
         }
     }
 
-    //we invert the values because a led is turned on if the signal is low
+    //we invert the values because the led is turned on if the signal is low
     palWritePad(GPIOD, GPIOD_LED1, leds[0] ? 0 : 1);
     palWritePad(GPIOD, GPIOD_LED3, leds[1] ? 0 : 1);
     palWritePad(GPIOD, GPIOD_LED5, leds[2] ? 0 : 1);
@@ -213,7 +219,8 @@ static void show_gravity(imu_msg_t *imu_values){
 /*===========================================================================*/
 
 /**
- * @brief               Thread which is in charge of the retrieval of the instructions given by the user.
+ * @brief               Thread in charge of the retrieval of the instructions given by the user.
+ *
  * @return              none
  *
 */
@@ -246,6 +253,7 @@ static THD_FUNCTION(InstructionFlowThread, arg) {
 
 /**
  * @brief               Initializes the Instruction generation thread.
+ *
  * @return              none
  *
 */

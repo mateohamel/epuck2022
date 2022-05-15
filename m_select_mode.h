@@ -13,6 +13,7 @@
 
 /**
  * @brief               Initializes the mode selection thread
+ *
  * @return              none
  */
 

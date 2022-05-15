@@ -30,9 +30,12 @@
 /*===========================================================================*/
 
 /**
- * @brief
- * @param motor_speed
- * @param dir
+ * @brief				function that sets the motors speed acording to the direction in which
+ * 						the robot has to go
+ *
+ * @param 				motor_speed, the speed in which the robot will go straight
+ * @param 				dir, the direction in which we want it to go
+ *
  * @return              none
  *
 */
@@ -41,19 +44,19 @@ void go(direction dir, uint16_t motor_speed){
 
 	switch(dir){
 
-	case(NO_DIRECTION):
+	case NO_DIRECTION :
 		break;
-	case(LEFT):
+	case LEFT :
 		left_motor_set_speed(-TURNING_SPEED);
 		right_motor_set_speed(TURNING_SPEED);
 		break;
 
-	case(RIGHT):
+	case RIGHT :
 		left_motor_set_speed(TURNING_SPEED);
 		right_motor_set_speed(-TURNING_SPEED);
 		break;
 
-	case(STRAIGHT):
+	case STRAIGHT :
 		left_motor_set_speed(motor_speed);
 		right_motor_set_speed(motor_speed);
 		break;
@@ -67,6 +70,7 @@ void go(direction dir, uint16_t motor_speed){
 
 /**
  * @brief               Thread which is in charge of moving the robot according to the given instruction.
+ *
  * @return              none
  *
 */
@@ -105,6 +109,7 @@ static THD_FUNCTION(InstructionExecutionThread, arg) {
 
 /**
  * @brief               Initializes the Instruction execution thread.
+ *
  * @return              none
  *
 */

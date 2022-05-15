@@ -1,6 +1,6 @@
 /**
  * @file    m_detect_obst.c
- * @brief   Module File. Handles the detection of obstacles using the proximity sensor.
+ * @brief   Module File. Handles obstacles detection using the proximity sensor.
  */
 
 
@@ -21,7 +21,7 @@
 /* Module constants.                                                         */
 /*===========================================================================*/
 
-#define ON 1
+#define ON 	1
 #define OFF 0
 
 
@@ -37,15 +37,18 @@ extern messagebus_t bus;
 /*===========================================================================*/
 
 /**
- * @brief				Compare the values measured by the proximity sensor to a threshold and set the robot in mode 3 if it is to close.
- * @param prox_values	Pointer to the message containing measurement of the Proximity sensor.
+ * @brief				Compare the values measured by the proximity sensor to a threshold and set the robot in mode 3
+ * 						if it is to close to an object.
+ *
+ * @param prox_values	Pointer to the message containing Proximity sensor measurements.
+ *
  * @return              none
  *
 */
 
 void obstacle_detection(proximity_msg_t *prox_values){
 
-	//arrêter les moteurs si IR1 ou IR8 détectent un obstacle
+	//stop motors if IR1 or IR8 detect an obstacle
 	if ((prox_values->ambient[0] - prox_values->reflected[0] > 100) && (prox_values->ambient[7] - prox_values->reflected[7] > 100)){
 		left_motor_set_speed(0);
 		right_motor_set_speed(0);
@@ -62,6 +65,7 @@ void obstacle_detection(proximity_msg_t *prox_values){
 
 /**
  * @brief               Thread which is in charge of detecting obstacles and changing the mode according to the results.
+ *
  * @return              none
  *
 */
@@ -106,7 +110,8 @@ static THD_FUNCTION(DetectObstaclesThread, arg) {
 /*===========================================================================*/
 
 /**
- * @brief               Initializes the Detection of obstacle using the proximity sensor thread.
+ * @brief               Initializes obstacle detection using the proximity sensor thread.
+ *
  * @return              none
  *
 */

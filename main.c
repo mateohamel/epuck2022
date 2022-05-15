@@ -9,12 +9,11 @@
 #include <sensors/imu.h>
 #include <sensors/proximity.h>
 #include <motors.h>
-#include <msgbus/messagebus.h>
 
 
 // Module headers
 
-#include <main.h>
+#include "main.h"
 #include "m_collect_instr.h"
 #include "m_detect_obst.h"
 #include "m_execute_dir.h"
@@ -26,7 +25,7 @@
 /*===========================================================================*/
 
 /**
- * @brief             Initializes all modules.
+ * @brief             Initializes every module.
  */
 
 static void modules_init(void){
@@ -40,7 +39,7 @@ static void modules_init(void){
 
 
 /**
- * @brief             Initializes all Threads.
+ * @brief             Initializes every Thread.
  */
 
 static void threads_init(void){

@@ -26,8 +26,16 @@
 /* Module constants.                                                         */
 /*===========================================================================*/
 
-#define ON 1
-#define OFF 0
+#define ON 					1
+#define OFF					0
+#define	W_TO_N				-3
+#define	S_TO_N_OR_W_TO_E	-2
+#define	TO_THE_LEFT			-1
+#define	GO_STRAIGHT			0
+#define	TO_THE_RIGHT		1
+#define	N_TO_S_OR_E_TO_W	2
+#define	N_TO_W				3
+
 
 
 /*===========================================================================*/
@@ -42,8 +50,56 @@ extern messagebus_t bus;
 /*===========================================================================*/
 
 /**
- * @brief               Translation of instructions get from accelerometer into instructions usable from the motors.
+ * @brief               Will add to g_route the directions to go to, depending of turning left or right
+ *
+ * @param	dir			left or right
+ *
+ * @return              none
+ *
+*/
+
+void turn(direction dir){
+	set_route(dir, get_route_counter());
+	increase_route_counter();
+	set_route(STRAIGHT, get_route_counter());
+	increase_route_counter();
+}
+
+/**
+ * @brief               Will add to g_route the directions to go to in order to turn back
+ *
+ * @return              none
+ *
+*/
+
+void turn_back(void){
+	set_route(RIGHT, get_route_counter());
+	increase_route_counter();
+	set_route(RIGHT, get_route_counter());
+	increase_route_counter();
+	set_route(STRAIGHT, get_route_counter());
+	increase_route_counter();
+}
+
+/**
+ * @brief               Will add to g_route the direction to go to in order to go straight
+ *
+ * @return              none
+ *
+*/
+
+void go_straight(void){
+	set_route(STRAIGHT, get_route_counter());
+	increase_route_counter();
+}
+
+
+
+/**
+ * @brief               Translation of instructions gotten from accelerometer into actual directions
+ * 						in which the robot will have to go.
  * 						It is modifying the global variable 'route' using getter and setter.
+ *
  * @return              none
  *
 */
@@ -52,34 +108,23 @@ static void translation(void){
 
 	switch(get_instruction_flow(0)){
 
-	case(NO_INSTRUCTION) :
-		break;
-	case(NORTH) :
-		set_route(STRAIGHT, 0);
-		increase_route_counter();
+	case NO_INSTRUCTION :
 		break;
 
-	case(WEST) :
-		set_route(LEFT, 0);
-		increase_route_counter();
-		set_route(STRAIGHT, 1);
-		increase_route_counter();
+	case NORTH :
+		go_straight();
 		break;
 
-	case(SOUTH) :
-		set_route(RIGHT, 0);
-		increase_route_counter();
-		set_route(RIGHT, 1);
-		increase_route_counter();
-		set_route(STRAIGHT, 2);
-		increase_route_counter();
+	case WEST :
+		turn(LEFT);
 		break;
 
-	case(EST) :
-		set_route(RIGHT, 0);
-		increase_route_counter();
-		set_route(STRAIGHT, 1);
-		increase_route_counter();
+	case SOUTH :
+		turn_back();
+		break;
+
+	case EST :
+		turn(RIGHT);
 		break;
 	}
 
@@ -87,55 +132,32 @@ static void translation(void){
 
 		switch(get_instruction_flow(i)-get_instruction_flow(i-1)){
 
-		case -3 :
-			set_route(RIGHT, get_route_counter());
-			increase_route_counter();
-			set_route(STRAIGHT, get_route_counter());
-			increase_route_counter();
+		case W_TO_N :
+			turn(RIGHT);
 			break;
 
-		case -2 :
-			set_route(RIGHT, get_route_counter());
-			increase_route_counter();
-			set_route(RIGHT, get_route_counter());
-			increase_route_counter();
-			set_route(STRAIGHT, get_route_counter());
-			increase_route_counter();
+		case S_TO_N_OR_W_TO_E :
+			turn_back();
 			break;
 
-		case -1 :
-			set_route(LEFT, get_route_counter());
-			increase_route_counter();
-			set_route(STRAIGHT, get_route_counter());
-			increase_route_counter();
+		case TO_THE_LEFT :
+			turn(LEFT);
 			break;
 
-		case 0 :
-			set_route(STRAIGHT, get_route_counter());
-			increase_route_counter();
+		case GO_STRAIGHT :
+			go_straight();
 			break;
 
-		case 1 :
-			set_route(RIGHT, get_route_counter());
-			increase_route_counter();
-			set_route(STRAIGHT, get_route_counter());
-			increase_route_counter();
+		case TO_THE_RIGHT :
+			turn(RIGHT);
 			break;
 
-		case 2 :
-			set_route(RIGHT, get_route_counter());
-			increase_route_counter();
-			set_route(RIGHT, get_route_counter());
-			increase_route_counter();
-			set_route(STRAIGHT, get_route_counter());
-			increase_route_counter();
+		case N_TO_S_OR_E_TO_W :
+			turn_back();
 			break;
 
-		case 3 :
-			set_route(LEFT, get_route_counter());
-			increase_route_counter();
-			set_route(STRAIGHT, get_route_counter());
-			increase_route_counter();
+		case N_TO_W :
+			turn(LEFT);
 			break;
 		}
 	}
@@ -143,9 +165,11 @@ static void translation(void){
 
 
 /**
- * @brief               Using the z-values of the accelerometer to detect and change the mode of the robot.
+ * @brief               Using the z-values of the accelerometer to detect and change the robot's mode.
  * 						When changing the mode, conditions are modified using getters and setters.
- * @param imu_values	pointer to the message containing measurement of the IMU.
+ *
+ * @param imu_values	pointer to the message containing the IMU measurement.
+ *
  * @return              none
  *
 */
@@ -203,7 +227,8 @@ static void Mode_Detection(imu_msg_t *imu_values){
 /*===========================================================================*/
 
 /**
- * @brief               Thread which is in charge of detecting a mode transition and initializing robot in consequences.
+ * @brief               Thread in charge of detecting a mode transition and initializing the robot in consequences.
+ *
  * @return              none
  *
 */
@@ -234,6 +259,7 @@ static THD_FUNCTION(ModeSelectionThread, arg) {
 
 /**
  * @brief               Initializes the mode selection thread
+ *
  * @return              none
  *
 */

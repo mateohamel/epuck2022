@@ -26,16 +26,17 @@ typedef enum {NO_INSTRUCTION, NORTH, EST, SOUTH, WEST} instruction;
 typedef enum {NO_DIRECTION, STRAIGHT, RIGHT,LEFT} direction;
 
 
-/* Enum used for the modes .  									*/
-/*  INIT  : Initial mode of the robot at startup. 				*/
-/*  Mode 1: The retrieval of instructions given by the user.	*/
-/*  Mode 2: The execution of the instructions given.			*/
-/*  Mode 3: The Panic mode when an obstacle has been detected.	*/
+/* Enum used for the mode .  									*/
+/*  INIT  : 	Initial mode of the robot at startup. 			*/
+/*  MODE_1: The retrieval of instructions given by the user.	*/
+/*  MODE_2: The execution of the instructions given.			*/
+/*  MODE_3: The Panic mode when an obstacle has been detected.	*/
 typedef enum {INIT, MODE_1, MODE_2, MODE_3} mode;
 
 
-#define MAX_INSTRUCTIONS 10
-#define MAX_DIRECTIONS 3 * MAX_INSTRUCTIONS
+#define MAX_INSTRUCTIONS 	10
+#define MAX_DIRECTIONS 		3 * MAX_INSTRUCTIONS // the longest instruction is turning back
+												 // and it takes 3 directions
 
 
 /*===========================================================================*/
@@ -43,7 +44,8 @@ typedef enum {INIT, MODE_1, MODE_2, MODE_3} mode;
 /*===========================================================================*/
 
 /**
- * @brief               Getter and Setter for the table of instruction: 'g_instruction_flow'.
+ * @brief               Getter and Setter for the table of instruction: 'g_instruction_flow'.]
+ *
  * @return              Getter: g_instruction_flow		Setter: none
  */
 
@@ -54,6 +56,7 @@ void set_instruction_flow(instruction new_instruction, uint8_t index);
 /**
  * @brief               Getter and Setter for the counter of the previous table: 'g_instruction_counter'.
  * 						The increase function ables to increment the counter.
+ *
  * @return              Getter: g_instruction_counter 	Setter: none
  */
 
@@ -64,6 +67,7 @@ void increase_instruction_counter(void);
 
 /**
  * @brief               Getter and Setter for the table of directions: 'g_route'.
+ *
  * @return              Getter: g_route					Setter: none
  */
 
@@ -74,6 +78,7 @@ void set_route(direction new_direction, uint8_t index);
 /**
  * @brief               Getter and Setter for the counter of the previous table: 'g_route_counter'.
  * 						The increase function ables to increment the counter.
+ *
  * @return              Getter: g_route_counter 	Setter: none
  */
 
@@ -84,6 +89,7 @@ void increase_route_counter(void);
 
 /**
  * @brief               Getter and Setter for the current mode of the robot: 'g_mode'.
+ *
  * @return              Getter: g_mode					Setter: none
  */
 
@@ -93,6 +99,7 @@ void set_mode(mode new_mode);
 
 /**
  * @brief               Initialize the Inter Process Communication bus.
+ *
  * @return              none
  */
 
