@@ -1,5 +1,5 @@
 /**
- * @file    generation.c
+ * @file    m_collect_instr.c
  * @brief   Module File. Handles the retrieval of the instructions given by the user.
  */
 
@@ -18,8 +18,8 @@
 
 // Module headers
 
-#include <generation.h>
-#include <globals.h>
+#include <m_collect_instr.h>
+#include "m_globals.h"
 
 
 /*===========================================================================*/

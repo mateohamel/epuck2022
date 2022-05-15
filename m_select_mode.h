@@ -1,10 +1,10 @@
 /**
- * @file    generation.h
- * @brief   External declarations for the Instruction generation module.
+ * @file    m_select_mode.h
+ * @brief   External declarations for the Mode selection module.
  */
 
-#ifndef GENERATION_H_
-#define GENERATION_H_
+#ifndef M_SELECT_MODE_H_
+#define M_SELECT_MODE_H_
 
 
 /*===========================================================================*/
@@ -12,11 +12,11 @@
 /*===========================================================================*/
 
 /**
- * @brief               Initializes the Instruction generation thread
+ * @brief               Initializes the mode selection thread
  * @return              none
  */
 
-void instruct_gen_init(void);
+void mode_select_init(void);
 
 
-#endif /* GENERATION_H_ */
+#endif /* M_SELECT_MODE_H_ */

@@ -1,5 +1,5 @@
 /**
- * @file    selection.c
+ * @file    m_select_mode.c
  * @brief   Module File. Handles the interactions between the different modes.
  */
 
@@ -17,8 +17,9 @@
 
 // Module headers
 
-#include <selection.h>
-#include <globals.h>
+#include <m_select_mode.h>
+
+#include "m_globals.h"
 
 
 /*===========================================================================*/
@@ -103,7 +104,7 @@ static void translation(void){
 			break;
 
 		case -1 :
-			set_route( LEFT, get_route_counter());
+			set_route(LEFT, get_route_counter());
 			increase_route_counter();
 			set_route(STRAIGHT, get_route_counter());
 			increase_route_counter();

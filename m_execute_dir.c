@@ -1,5 +1,5 @@
 /**
- * @file    move.c
+ * @file    m_execute_dir.c
  * @brief   Module File. Handles the movement of the robot according to the given instructions.
  */
 
@@ -12,8 +12,8 @@
 
 // Module headers
 
-#include <move.h>
-#include <globals.h>
+#include <m_execute_dir.h>
+#include "m_globals.h"
 
 
 /*===========================================================================*/

@@ -1,10 +1,10 @@
 /**
- * @file    detect_obstacles.h
+ * @file    m_detect_obst.h
  * @brief   External declarations for the detection of obstacles module.
  */
 
-#ifndef DETECT_OBSTACLES_H_
-#define DETECT_OBSTACLES_H_
+#ifndef M_DETECT_OBST_H_
+#define M_DETECT_OBST_H_
 
 
 /*===========================================================================*/
@@ -19,4 +19,4 @@
 void detect_obst_init(void);
 
 
-#endif /* DETECT_OBSTACLES_H_ */
+#endif /* M_DETECT_OBST_H_ */

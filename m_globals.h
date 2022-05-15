@@ -1,5 +1,5 @@
 /**
- * @file    globals.h
+ * @file    m_globals.h
  * @brief   External declarations of getters and setters of our global variables.
  * 			Globals source and header files are used to give robustness to the project even with
  * 			the use of global variables.
