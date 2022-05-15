@@ -10,9 +10,9 @@ extern "C" {
 #include "parameter/parameter.h"
 
 
-/** Robot wide IPC bus. */
-extern messagebus_t bus;
-
+///** Robot wide IPC bus. */
+//extern messagebus_t bus;
+//
 extern parameter_namespace_t parameter_root;
 
 

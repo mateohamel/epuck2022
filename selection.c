@@ -6,11 +6,7 @@
  */
 
 #include "selection.h"
-#include <msgbus/messagebus.h>
-#include <sensors/imu.h>
-#include <hal.h>
 #include <motors.h>
-#include "globals.h"
 #include <math.h>
 
 //DEFINE

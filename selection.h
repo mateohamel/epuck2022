@@ -8,6 +8,9 @@
 #ifndef SELECTION_H_
 #define SELECTION_H_
 
+#include <sensors/imu.h>
+#include "globals.h"
+
 void mode_select_init(void);
 
 

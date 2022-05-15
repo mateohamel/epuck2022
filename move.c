@@ -6,10 +6,7 @@
  */
 
 
-#include "ch.h"
-#include "hal.h"
 #include "selector.h"
-#include <motors.h>
 #include "move.h"
 #include "globals.h"
 

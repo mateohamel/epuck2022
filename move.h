@@ -8,6 +8,8 @@
 #ifndef MOVE_H_
 #define MOVE_H_
 
+#include <motors.h>
+
 void move_init(void);
 
 

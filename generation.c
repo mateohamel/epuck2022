@@ -7,11 +7,9 @@
 
 
 #include "generation.h"
-#include <msgbus/messagebus.h>
 #include <sensors/imu.h>
 #include <math.h>
 #include <chsys.h>
-#include <hal.h>
 #include "globals.h"
 
 

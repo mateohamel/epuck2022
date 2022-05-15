@@ -8,6 +8,8 @@
 #ifndef DETECT_OBSTACLES_H_
 #define DETECT_OBSTACLES_H_
 
+#include <sensors/proximity.h>
+
 void detect_obst_init(void);
 
 

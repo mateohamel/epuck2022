@@ -6,11 +6,9 @@
  */
 
 
-#include "hal.h"
 #include <motors.h>
-#include <sensors/proximity.h>
-#include <msgbus/messagebus.h>
 #include "globals.h"
+#include "detect_obstacles.h"
 
 //DEFINE
 

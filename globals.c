@@ -5,7 +5,6 @@
  *      Author: Romane
  */
 
-#include "msgbus/messagebus.h"
 #include "ch.h"
 #include "globals.h"
 

@@ -1,26 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "ch.h"
-#include "hal.h"
 #include <main.h>
-#include <chprintf.h>
-#include <motors.h>
-#include <sensors/imu.h>
-#include <msgbus/messagebus.h>
-#include <sensors/proximity.h>
-#include <math.h>
-
-#include "selector.h"
-
-#include <arm_math.h>
-
 #include "selection.h"
 #include "generation.h"
 #include "detect_obstacles.h"
 #include "move.h"
-#include "globals.h"
 
 
 
