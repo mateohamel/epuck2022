@@ -17,8 +17,7 @@
 
 // Module headers
 
-#include <m_select_mode.h>
-
+#include "m_select_mode.h"
 #include "m_globals.h"
 
 

@@ -6,6 +6,7 @@
  */
 
 
+
 // e-puck main processor headers
 
 #include <ch.h>
@@ -14,7 +15,7 @@
 
 // Module headers
 
-#include <m_globals.h>
+#include "m_globals.h"
 
 
 /*===========================================================================*/
