@@ -1,17 +1,22 @@
-/*
- * move.h
- *
- *  Created on: 14 mai 2022
- *      Author: hamel
+/**
+ * @file    move.h
+ * @brief   External declarations for the Movement of the robot module.
  */
 
 #ifndef MOVE_H_
 #define MOVE_H_
 
-#include <motors.h>
+
+/*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
+
+/**
+ * @brief               Initializes the Instruction execution thread
+ * @return              none
+ */
 
 void move_init(void);
-
 
 
 #endif /* MOVE_H_ */

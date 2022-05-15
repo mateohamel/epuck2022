@@ -1,23 +1,41 @@
-/*
- * move.c
- *
- *  Created on: 9 mai 2022
- *      Author: Romane
+/**
+ * @file    move.c
+ * @brief   Module File. Handles the movement of the robot according to the given instructions.
  */
 
 
-#include "selector.h"
-#include "move.h"
-#include "globals.h"
+// e-puck main processor headers
+
+#include <motors.h>
+#include <selector.h>
 
 
-//DEFINE
+// Module headers
 
-#define TURNING_SPEED 158
+#include <move.h>
+#include <globals.h>
+
+
+/*===========================================================================*/
+/* Module constants.                                                         */
+/*===========================================================================*/
+
+#define TURNING_SPEED 159
 #define SPEED_FACTOR 60
 #define SPEED_OFFSET 140
 
-//INTERNAL FUNCTION
+
+/*===========================================================================*/
+/* Module local functions.                                                   */
+/*===========================================================================*/
+
+/**
+ * @brief
+ * @param motor_speed
+ * @param dir
+ * @return              none
+ *
+*/
 
 void go(direction dir, uint16_t motor_speed){
 
@@ -41,6 +59,17 @@ void go(direction dir, uint16_t motor_speed){
 		break;
 	}
 }
+
+
+/*===========================================================================*/
+/* Module threads.                                                           */
+/*===========================================================================*/
+
+/**
+ * @brief               Thread which is in charge of moving the robot according to the given instruction.
+ * @return              none
+ *
+*/
 
 static THD_WORKING_AREA(waInstructionExecutionThread, 128);
 static THD_FUNCTION(InstructionExecutionThread, arg) {
@@ -69,7 +98,16 @@ static THD_FUNCTION(InstructionExecutionThread, arg) {
 	}
 }
 
-//EXTERNAL FUNCTION
+
+/*===========================================================================*/
+/* Module exported functions.                                                */
+/*===========================================================================*/
+
+/**
+ * @brief               Initializes the Instruction execution thread.
+ * @return              none
+ *
+*/
 
 void move_init(void){
 	chThdCreateStatic(waInstructionExecutionThread, sizeof(waInstructionExecutionThread), NORMALPRIO, InstructionExecutionThread, NULL);

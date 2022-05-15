@@ -1,23 +1,47 @@
-/*
- * move.c
- *
- *  Created on: 9 mai 2022
- *      Author: Romane
+/**
+ * @file    generation.c
+ * @brief   Module File. Handles the detection of obstacles using the proximity sensor.
  */
 
 
-#include <motors.h>
-#include "globals.h"
-#include "detect_obstacles.h"
+// e-puck main processor headers
 
-//DEFINE
+#include <motors.h>
+#include <sensors/proximity.h>
+#include <msgbus/messagebus.h>
+
+
+// Module headers
+
+#include <globals.h>
+#include <detect_obstacles.h>
+
+
+/*===========================================================================*/
+/* Module constants.                                                         */
+/*===========================================================================*/
 
 #define ON 1
 #define OFF 0
 
+
+/*===========================================================================*/
+/* Bus related declarations.                                                 */
+/*===========================================================================*/
+
 extern messagebus_t bus;
 
-//INTERNAL FUNCTION
+
+/*===========================================================================*/
+/* Module local functions.                                                   */
+/*===========================================================================*/
+
+/**
+ * @brief				Compare the values measured by the proximity sensor to a threshold and set the robot in mode 3 if it is to close.
+ * @param prox_values	Pointer to the message containing measurement of the Proximity sensor.
+ * @return              none
+ *
+*/
 
 void obstacle_detection(proximity_msg_t *prox_values){
 
@@ -31,6 +55,16 @@ void obstacle_detection(proximity_msg_t *prox_values){
 	}
 }
 
+
+/*===========================================================================*/
+/* Module threads.                                                           */
+/*===========================================================================*/
+
+/**
+ * @brief               Thread which is in charge of detecting obstacles and changing the mode according to the results.
+ * @return              none
+ *
+*/
 
 static THD_WORKING_AREA(waDetectObstaclesThread, 128);
 static THD_FUNCTION(DetectObstaclesThread, arg) {
@@ -67,7 +101,15 @@ static THD_FUNCTION(DetectObstaclesThread, arg) {
 }
 
 
-//EXTERNAL FUNCTION
+/*===========================================================================*/
+/* Module exported functions.                                                */
+/*===========================================================================*/
+
+/**
+ * @brief               Initializes the Detection of obstacle using the proximity sensor thread.
+ * @return              none
+ *
+*/
 
 void detect_obst_init(void){
 	chThdCreateStatic(waDetectObstaclesThread, sizeof(waDetectObstaclesThread), NORMALPRIO, DetectObstaclesThread, NULL);

@@ -1,15 +1,20 @@
-/*
- * selection.h
- *
- *  Created on: 14 mai 2022
- *      Author: hamel
+/**
+ * @file    selection.h
+ * @brief   External declarations for the Mode selection module.
  */
 
 #ifndef SELECTION_H_
 #define SELECTION_H_
 
-#include <sensors/imu.h>
-#include "globals.h"
+
+/*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
+
+/**
+ * @brief               Initializes the mode selection thread
+ * @return              none
+ */
 
 void mode_select_init(void);
 

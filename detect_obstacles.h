@@ -1,14 +1,20 @@
-/*
- * detect_obstacles.h
- *
- *  Created on: 14 mai 2022
- *      Author: hamel
+/**
+ * @file    detect_obstacles.h
+ * @brief   External declarations for the detection of obstacles module.
  */
 
 #ifndef DETECT_OBSTACLES_H_
 #define DETECT_OBSTACLES_H_
 
-#include <sensors/proximity.h>
+
+/*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
+
+/**
+ * @brief               Initializes the Detection of obstacle using the proximity sensor thread.
+ * @return              none
+ */
 
 void detect_obst_init(void);
 

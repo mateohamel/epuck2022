@@ -1,12 +1,20 @@
-/*
- * generation.h
- *
- *  Created on: 14 mai 2022
- *      Author: hamel
+/**
+ * @file    generation.h
+ * @brief   External declarations for the Instruction generation module.
  */
 
 #ifndef GENERATION_H_
 #define GENERATION_H_
+
+
+/*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
+
+/**
+ * @brief               Initializes the Instruction generation thread
+ * @return              none
+ */
 
 void instruct_gen_init(void);
 

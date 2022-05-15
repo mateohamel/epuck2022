@@ -1,19 +1,30 @@
-/*
- * generation.c
- *
- *  Created on: 14 mai 2022
- *      Author: hamel
+/**
+ * @file    generation.c
+ * @brief   Module File. Handles the retrieval of the instructions given by the user.
  */
 
 
-#include "generation.h"
-#include <sensors/imu.h>
+// C library
+
 #include <math.h>
+
+
+// e-puck main processor headers
+
+#include <sensors/imu.h>
 #include <chsys.h>
-#include "globals.h"
+#include <msgbus/messagebus.h>
 
 
-//DEFINE
+// Module headers
+
+#include <generation.h>
+#include <globals.h>
+
+
+/*===========================================================================*/
+/* Module constants.                                                         */
+/*===========================================================================*/
 
 #define NONE '0'
 #define LED_1 '1'
@@ -21,11 +32,27 @@
 #define LED_5 '5'
 #define LED_7 '7'
 
+
+/*===========================================================================*/
+/* Bus related declarations.                                                 */
+/*===========================================================================*/
+
 extern messagebus_t bus;
 
-//INTERNAL FUNCTION
 
-void led_charging(uint8_t *leds_tmp, uint8_t starting_led, uint8_t led_numbers) {
+/*===========================================================================*/
+/* Module local functions.                                                   */
+/*===========================================================================*/
+
+/**
+ * @brief				Modify the LEDs array, put to 1 the starting led and a precise number of the consecutive LEDs (clockwise).
+ * @param starting_led	index of 'leds_tmp' according to the angle measured.
+ * @param led_numbers	represent the number of LEDs to activate.
+ * @return              none
+ *
+*/
+
+static void led_charging(uint8_t *leds_tmp, uint8_t starting_led, uint8_t led_numbers) {
 
 	uint8_t i;
 	for(i=0; i < led_numbers; i=i+1){
@@ -37,7 +64,47 @@ void led_charging(uint8_t *leds_tmp, uint8_t starting_led, uint8_t led_numbers) 
 	}
 }
 
-void show_gravity(imu_msg_t *imu_values){
+
+/**
+ * @brief				Set LEDs to 1 according to the counter to symbolize the charging of the instruction.
+ * @param cardinal_dir	NO_INSTRUCTION, NORTH, EST, SOUTH, WEST
+ * @param current_led	index of 'leds_tmp' according to the angle measured.
+ * @return              none
+ *
+*/
+
+static bool led_counter(uint8_t *leds_tmp, uint8_t counter, uint8_t current_led, uint8_t cardinal_dir){
+    switch(counter){
+    case 2:
+    	led_charging(leds_tmp, current_led, counter - 1);
+    	return false;
+    case 3:
+    	led_charging(leds_tmp, current_led, counter - 1);
+    	return false;
+    case 4:
+    	led_charging(leds_tmp, current_led, counter - 1);
+    	return false;
+    case 5:
+    	led_charging(leds_tmp, current_led, counter - 1);
+		set_instruction_flow(cardinal_dir, get_instruction_counter());
+		if (get_instruction_counter() != 15){
+			increase_instruction_counter();
+		}
+		return true;
+	}
+    return false;
+}
+
+
+/**
+ * @brief				Retrieval of the accelerometer x and y-values and use of a threshold.
+ * 						After a set counter, modification of instruction_flow using getters and setters.
+ * @param imu_values	pointer to the message containing measurement of the IMU.
+ * @return              none
+ *
+*/
+
+static void show_gravity(imu_msg_t *imu_values){
 
     //we create variables for the led in order to turn them off at each loop and to
     //select which one to turn on
@@ -92,25 +159,9 @@ void show_gravity(imu_msg_t *imu_values){
             	counter=0;
             	leds[2] = 0;
             }
-            switch(counter){
-            case 2:
-            	led_charging(leds, 2, 1);
-				break;
-            case 3:
-            	led_charging(leds, 2, 2);
-				break;
-            case 4:
-            	led_charging(leds, 2, 3);
-				break;
-            case 5:
-            	led_charging(leds, 2, 4);
-				set_instruction_flow(SOUTH, get_instruction_counter());
-				if (get_instruction_counter() != 15){
-					increase_instruction_counter();
-				}
-				counter = 0;
-				break;
-			}
+            if(led_counter(leds, counter, 2, SOUTH)){
+            	counter = 0;
+            }
         	previous_led = LED_5;
         }else if(angle >= M_PI/2 && angle < M_PI){
             if(previous_led == LED_7){
@@ -119,25 +170,9 @@ void show_gravity(imu_msg_t *imu_values){
             	counter=0;
             	leds[3] = 0;
             }
-            switch(counter){
-            case 2:
-            	led_charging(leds, 3, 1);
-				break;
-            case 3:
-            	led_charging(leds, 3, 2);
-				break;
-            case 4:
-            	led_charging(leds, 3, 3);
-				break;
-            case 5:
-            	led_charging(leds, 3, 4);
-				set_instruction_flow(WEST, get_instruction_counter());
-				if (get_instruction_counter() != 15){
-					increase_instruction_counter();
-				}
-				counter = 0;
-				break;
-			}
+            if(led_counter(leds, counter, 3, WEST)){
+            	counter = 0;
+            }
         	previous_led = LED_7;
         }else if(angle >= -M_PI && angle < -M_PI/2){
             if(previous_led == LED_1){
@@ -146,24 +181,8 @@ void show_gravity(imu_msg_t *imu_values){
             	counter=0;
             	leds[0] = 0;
             }
-			switch(counter){
-			case 2:
-            	led_charging(leds, 0, 1);
-				break;
-			case 3:
-            	led_charging(leds, 0, 2);
-				break;
-			case 4:
-            	led_charging(leds, 0, 3);
-				break;
-			case 5:
-            	led_charging(leds, 0, 4);
-				set_instruction_flow(NORTH, get_instruction_counter());
-				if (get_instruction_counter() != 15){
-					increase_instruction_counter();
-				}
-				counter = 0;
-				break;
+            if(led_counter(leds, counter, 0, NORTH)){
+            	counter = 0;
             }
         	previous_led = LED_1;
         }else if(angle >= -M_PI/2 && angle < 0){
@@ -173,25 +192,9 @@ void show_gravity(imu_msg_t *imu_values){
             	counter=0;
             	leds[1] = 0;
             }
-			switch(counter){
-			case 2:
-            	led_charging(leds, 1, 1);
-				break;
-			case 3:
-            	led_charging(leds, 1, 2);
-				break;
-			case 4:
-            	led_charging(leds, 1, 3);
-				break;
-			case 5:
-            	led_charging(leds, 1, 4);
-				set_instruction_flow(EST, get_instruction_counter());
-				if (get_instruction_counter() != 15){
-					increase_instruction_counter();
-				}
-				counter = 0;
-				break;
-			}
+            if(led_counter(leds, counter, 1, EST)){
+            	counter = 0;
+            }
         	previous_led = LED_3;
         }
     }
@@ -203,6 +206,17 @@ void show_gravity(imu_msg_t *imu_values){
     palWritePad(GPIOD, GPIOD_LED7, leds[3] ? 0 : 1);
 
 }
+
+
+/*===========================================================================*/
+/* Module threads.                                                           */
+/*===========================================================================*/
+
+/**
+ * @brief               Thread which is in charge of the retrieval of the instructions given by the user.
+ * @return              none
+ *
+*/
 
 static THD_WORKING_AREA(waInstructionFlowThread, 128);
 static THD_FUNCTION(InstructionFlowThread, arg) {
@@ -225,7 +239,16 @@ static THD_FUNCTION(InstructionFlowThread, arg) {
 	}
 }
 
-//EXTERNAL FUNCTION
+
+/*===========================================================================*/
+/* Module exported functions.                                                */
+/*===========================================================================*/
+
+/**
+ * @brief               Initializes the Instruction generation thread.
+ * @return              none
+ *
+*/
 
 void instruct_gen_init(void){
 	chThdCreateStatic(waInstructionFlowThread, sizeof(waInstructionFlowThread), NORMALPRIO, InstructionFlowThread, NULL);

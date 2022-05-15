@@ -1,24 +1,53 @@
-/*
- * selection.c
- *
- *  Created on: 14 mai 2022
- *      Author: hamel
+/**
+ * @file    selection.c
+ * @brief   Module File. Handles the interactions between the different modes.
  */
 
-#include "selection.h"
-#include <motors.h>
+// C library
+
 #include <math.h>
 
-//DEFINE
+
+// e-puck main processor headers
+
+#include <sensors/imu.h>
+#include <motors.h>
+#include <msgbus/messagebus.h>
+
+
+// Module headers
+
+#include <selection.h>
+#include <globals.h>
+
+
+/*===========================================================================*/
+/* Module constants.                                                         */
+/*===========================================================================*/
 
 #define ON 1
 #define OFF 0
 
+
+/*===========================================================================*/
+/* Bus related declarations.                                                 */
+/*===========================================================================*/
+
 extern messagebus_t bus;
 
-//INTERNAL FUNCTION
 
-void translation(void){
+/*===========================================================================*/
+/* Module local functions.                                                   */
+/*===========================================================================*/
+
+/**
+ * @brief               Translation of instructions get from accelerometer into instructions usable from the motors.
+ * 						It is modifying the global variable 'route' using getter and setter.
+ * @return              none
+ *
+*/
+
+static void translation(void){
 
 	switch(get_instruction_flow(0)){
 
@@ -111,7 +140,16 @@ void translation(void){
 	}
 }
 
-void Mode_Detection(imu_msg_t *imu_values){
+
+/**
+ * @brief               Using the z-values of the accelerometer to detect and change the mode of the robot.
+ * 						When changing the mode, conditions are modified using getters and setters.
+ * @param imu_values	pointer to the message containing measurement of the IMU.
+ * @return              none
+ *
+*/
+
+static void Mode_Detection(imu_msg_t *imu_values){
 
 	float threshold_zh = 16;
 	float threshold_zl = 10;
@@ -158,6 +196,17 @@ void Mode_Detection(imu_msg_t *imu_values){
 	}
 }
 
+
+/*===========================================================================*/
+/* Module threads.                                                           */
+/*===========================================================================*/
+
+/**
+ * @brief               Thread which is in charge of detecting a mode transition and initializing robot in consequences.
+ * @return              none
+ *
+*/
+
 static THD_WORKING_AREA(waModeSelectionThread, 128);
 static THD_FUNCTION(ModeSelectionThread, arg) {
 
@@ -177,7 +226,16 @@ static THD_FUNCTION(ModeSelectionThread, arg) {
 	}
 }
 
-//EXTERNAL FUNCTION
+
+/*===========================================================================*/
+/* Module exported functions.                                                */
+/*===========================================================================*/
+
+/**
+ * @brief               Initializes the mode selection thread
+ * @return              none
+ *
+*/
 
 void mode_select_init(void){
     chThdCreateStatic(waModeSelectionThread, sizeof(waModeSelectionThread), NORMALPRIO, ModeSelectionThread, NULL);

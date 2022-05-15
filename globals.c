@@ -1,30 +1,63 @@
-/*
- * globals.c
- *
- *  Created on: 14 mai 2022
- *      Author: Romane
+/**
+ * @file    globals.c
+ * @brief   Complementary File. Creation of getters and setters of our global variables.
+ * 			Globals source and header files are used to give robustness to the project even with
+ * 			the use of global variables.
  */
 
-#include "ch.h"
-#include "globals.h"
+
+// e-puck main processor headers
+
+#include <ch.h>
+#include <msgbus/messagebus.h>
+
+
+// Module headers
+
+#include <globals.h>
+
+
+/*===========================================================================*/
+/* Project global variables.                                                 */
+/*===========================================================================*/
 
 /** Array containing the instructions given to the e-puck. */
 instruction g_instruction_flow[MAX_INSTRUCTIONS] = {0};
 
+
 /** Counter keeping track of how many instructions were given.  */
 uint8_t g_instruction_counter = 0;
+
 
 /** Array containing the route the e-puck has to follow.  */
 direction g_route[MAX_DIRECTIONS];
 
+
 /** Counter keeping track of how many directions have to be followed.  */
 uint8_t g_route_counter = 0;
 
+
+/** Variables representing the current mode of the robot.	*/
 mode g_mode = INIT;
+
+
+/*===========================================================================*/
+/* Bus related declarations.                                                 */
+/*===========================================================================*/
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
+
+
+/*===========================================================================*/
+/* Module exported functions.                                                */
+/*===========================================================================*/
+
+/**
+ * @brief               Getter and Setter for the table of instruction: 'g_instruction_flow'.
+ * @return              Getter: g_instruction_flow		Setter: none
+ */
 
 instruction get_instruction_flow(uint8_t index){
 	return g_instruction_flow[index];
@@ -35,6 +68,12 @@ void set_instruction_flow(instruction new_instruction, uint8_t index){
 	return;
 }
 
+
+/**
+ * @brief               Getter and Setter for the counter of the previous table: 'g_instruction_counter'.
+ * 						The increase function ables to increment the counter.
+ * @return              Getter: g_instruction_counter 	Setter: none
+ */
 
 uint8_t get_instruction_counter(void){
 	return g_instruction_counter;
@@ -51,6 +90,11 @@ void increase_instruction_counter(void){
 }
 
 
+/**
+ * @brief               Getter and Setter for the table of directions: 'g_route'.
+ * @return              Getter: g_route					Setter: none
+ */
+
 direction get_route(uint8_t index){
 	return g_route[index];
 }
@@ -60,6 +104,12 @@ void set_route(direction new_direction, uint8_t index){
 	return;
 }
 
+
+/**
+ * @brief               Getter and Setter for the counter of the previous table: 'g_route_counter'.
+ * 						The increase function ables to increment the counter.
+ * @return              Getter: g_route_counter 	Setter: none
+ */
 
 uint8_t get_route_counter(void){
 	return g_route_counter;
@@ -76,6 +126,11 @@ void increase_route_counter(void){
 }
 
 
+/**
+ * @brief               Getter and Setter for the current mode of the robot: 'g_mode'.
+ * @return              Getter: g_mode					Setter: none
+ */
+
 mode get_mode(void){
 	return g_mode;
 }
@@ -85,7 +140,12 @@ void set_mode(mode new_mode){
 	return;
 }
 
+
+/**
+ * @brief               Initialize the Inter Process Communication bus.
+ * @return              none
+ */
+
 void msgbus_init(void){
-	/** Inits the Inter Process Communication bus. */
     messagebus_init(&bus, &bus_lock, &bus_condvar);
 }
