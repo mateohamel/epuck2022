@@ -31,7 +31,7 @@
 #define LED_3			'3'
 #define LED_5			'5'
 #define LED_7			'7'
-#define XY_THRESHOLD	3     //threshold value to not use the leds when the robot is too horizontal
+#define XY_THRESHOLD	2     //threshold value to not use the leds when the robot is too horizontal
 
 
 /*===========================================================================*/

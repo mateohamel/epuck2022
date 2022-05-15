@@ -34,6 +34,10 @@
 #define	TO_THE_RIGHT		1
 #define	N_TO_S_OR_E_TO_W	2
 #define	N_TO_W				3
+#define ZH_THRESHOLD		16
+#define ZL_THRESHOLD		9
+#define XY_THRESHOLD		2
+
 
 
 
@@ -175,15 +179,13 @@ static void translation(void){
 
 static void Mode_Detection(imu_msg_t *imu_values){
 
-	float threshold_zh = 16;
-	float threshold_zl = 10;
-	float threshold_xy = 2.5;
+
 	//create a pointer to the array for shorter name
 	float *accell = imu_values->acceleration;
     static uint8_t counter = 0;
     static bool current_state = false;
 
-	if(fabs(accell[Z_AXIS]) < threshold_zh && fabs(accell[Z_AXIS]) > threshold_zl && !(fabs(accell[X_AXIS]) > threshold_xy || fabs(accell[Y_AXIS]) > threshold_xy )){
+	if(fabs(accell[Z_AXIS]) < ZH_THRESHOLD && fabs(accell[Z_AXIS]) > ZL_THRESHOLD && !(fabs(accell[X_AXIS]) > XY_THRESHOLD || fabs(accell[Y_AXIS]) > XY_THRESHOLD )){
 		if(get_mode() == MODE_1){ //MODE_1
 			if(counter == 8 && !current_state){
 				chThdSleepMilliseconds(500);
