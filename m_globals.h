@@ -38,6 +38,7 @@ typedef enum {INIT, MODE_1, MODE_2, MODE_3} mode;
 #define MAX_DIRECTIONS 		3 * MAX_INSTRUCTIONS // the longest instruction is turning back
 												 // and it takes 3 directions
 
+#define NO_SPEED			0
 
 /*===========================================================================*/
 /* External declarations.                                                    */

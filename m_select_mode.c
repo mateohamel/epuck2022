@@ -36,8 +36,8 @@
 #define	N_TO_W				3
 #define ZH_THRESHOLD		16
 #define ZL_THRESHOLD		9
-#define XY_THRESHOLD		2
-
+#define XY_THRESHOLD		3
+#define DELAY				8
 
 
 
@@ -187,7 +187,7 @@ static void Mode_Detection(imu_msg_t *imu_values){
 
 	if(fabs(accell[Z_AXIS]) < ZH_THRESHOLD && fabs(accell[Z_AXIS]) > ZL_THRESHOLD && !(fabs(accell[X_AXIS]) > XY_THRESHOLD || fabs(accell[Y_AXIS]) > XY_THRESHOLD )){
 		if(get_mode() == MODE_1){ //MODE_1
-			if(counter == 8 && !current_state){
+			if(counter == DELAY && !current_state){
 				chThdSleepMilliseconds(500);
 				set_mode(MODE_2);
 				palWritePad(GPIOB, GPIOB_LED_BODY, ON ? 0 : 1);
@@ -195,23 +195,23 @@ static void Mode_Detection(imu_msg_t *imu_values){
 				counter = 0;
 				current_state = true;
 			}else{
-				if(counter > 8){
+				if(counter > DELAY){
 					counter = 0;
 				}
 				++counter;
 			}
 		}else{ //MODE_2 or MODE_3
-			if(counter == 8 && !current_state){
+			if(counter == DELAY && !current_state){
 				set_mode(MODE_1);
 				set_instruction_counter(0);
 				set_instruction_flow(0,NO_INSTRUCTION);
 				palWritePad(GPIOB, GPIOB_LED_BODY, OFF ? 0 : 1);
 				counter = 0;
 				current_state = true;
-				left_motor_set_speed(0);
-				right_motor_set_speed(0);
+				left_motor_set_speed(NO_SPEED);
+				right_motor_set_speed(NO_SPEED);
 			}else{
-				if(counter > 8){
+				if(counter > DELAY){
 					counter = 0;
 				}
 				++counter;

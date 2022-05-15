@@ -26,12 +26,9 @@
 /* Module constants.                                                         */
 /*===========================================================================*/
 
-#define NONE			'0'
-#define LED_1			'1'
-#define LED_3			'3'
-#define LED_5			'5'
-#define LED_7			'7'
-#define XY_THRESHOLD	2     //threshold value to not use the leds when the robot is too horizontal
+typedef enum {LED_1, LED_3, LED_5, LED_7, NONE } leds;
+#define NUMBER_OF_LEDS   4
+#define XY_THRESHOLD	2.5    //threshold value to not use the leds when the robot is too horizontal
 
 
 /*===========================================================================*/
@@ -59,10 +56,10 @@ static void led_charging(uint8_t *leds_tmp, uint8_t starting_led, uint8_t led_nu
 
 	uint8_t i;
 	for(i=0; i < led_numbers; i=i+1){
-		if(starting_led + i < 4){
+		if(starting_led + i < NUMBER_OF_LEDS){
 			leds_tmp[starting_led + i] = 1;
 		}else{
-			leds_tmp[starting_led + i - 4] =1;
+			leds_tmp[starting_led + i - NUMBER_OF_LEDS] =1;
 		}
 	}
 }
@@ -92,7 +89,7 @@ static bool led_counter(uint8_t *leds_tmp, uint8_t counter, uint8_t current_led,
     case 5:
     	led_charging(leds_tmp, current_led, counter - 1);
 		set_instruction_flow(cardinal_dir, get_instruction_counter());
-		if (get_instruction_counter() != 15){
+		if (get_instruction_counter() < MAX_INSTRUCTIONS){
 			increase_instruction_counter();
 		}
 		return true;
@@ -115,32 +112,12 @@ static void show_gravity(imu_msg_t *imu_values){
 
     //we create variables for the led in order to turn them off at each loop and to
     //select which one to turn on
-	uint8_t leds[4] = {0,0,0,0};
-
+	uint8_t leds[NUMBER_OF_LEDS] = {0,0,0,0};
 
     //create a pointer to the array for shorter name
     float *accel = imu_values->acceleration;
     static uint8_t counter = 0;
     static char previous_led = NONE;
-
-    /*
-    *   example 1 with trigonometry.
-    */
-
-    /*
-    * Quadrant:
-    *
-    *       BACK
-    *       ####
-    *    #    0   #
-    *  #            #
-    * #-PI/2 TOP PI/2#
-    * #      VIEW    #
-    *  #            #
-    *    # -PI|PI #
-    *       ####
-    *       FRONT
-    */
 
     if(fabs(accel[X_AXIS]) > XY_THRESHOLD || fabs(accel[Y_AXIS]) > XY_THRESHOLD){
 
@@ -163,7 +140,7 @@ static void show_gravity(imu_msg_t *imu_values){
             	++counter;
             }else{
             	counter=0;
-            	leds[2] = 0;
+            	leds[LED_5] = 0;
             }
             if(led_counter(leds, counter, 2, SOUTH)){
             	counter = 0;
@@ -174,7 +151,7 @@ static void show_gravity(imu_msg_t *imu_values){
             	++counter;
             }else{
             	counter=0;
-            	leds[3] = 0;
+            	leds[LED_7] = 0;
             }
             if(led_counter(leds, counter, 3, WEST)){
             	counter = 0;
@@ -185,7 +162,7 @@ static void show_gravity(imu_msg_t *imu_values){
             	++counter;
             }else{
             	counter=0;
-            	leds[0] = 0;
+            	leds[LED_1] = 0;
             }
             if(led_counter(leds, counter, 0, NORTH)){
             	counter = 0;
@@ -196,7 +173,7 @@ static void show_gravity(imu_msg_t *imu_values){
             	++counter;
             }else{
             	counter=0;
-            	leds[1] = 0;
+            	leds[LED_3] = 0;
             }
             if(led_counter(leds, counter, 1, EST)){
             	counter = 0;
@@ -206,10 +183,10 @@ static void show_gravity(imu_msg_t *imu_values){
     }
 
     //we invert the values because the led is turned on if the signal is low
-    palWritePad(GPIOD, GPIOD_LED1, leds[0] ? 0 : 1);
-    palWritePad(GPIOD, GPIOD_LED3, leds[1] ? 0 : 1);
-    palWritePad(GPIOD, GPIOD_LED5, leds[2] ? 0 : 1);
-    palWritePad(GPIOD, GPIOD_LED7, leds[3] ? 0 : 1);
+    palWritePad(GPIOD, GPIOD_LED1, leds[LED_1] ? 0 : 1);
+    palWritePad(GPIOD, GPIOD_LED3, leds[LED_3] ? 0 : 1);
+    palWritePad(GPIOD, GPIOD_LED5, leds[LED_5] ? 0 : 1);
+    palWritePad(GPIOD, GPIOD_LED7, leds[LED_7] ? 0 : 1);
 
 }
 

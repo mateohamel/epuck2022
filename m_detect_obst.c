@@ -50,8 +50,8 @@ void obstacle_detection(proximity_msg_t *prox_values){
 
 	//stop motors if IR1 or IR8 detect an obstacle
 	if ((prox_values->ambient[0] - prox_values->reflected[0] > 100) && (prox_values->ambient[7] - prox_values->reflected[7] > 100)){
-		left_motor_set_speed(0);
-		right_motor_set_speed(0);
+		left_motor_set_speed(NO_SPEED);
+		right_motor_set_speed(NO_SPEED);
 		set_mode(MODE_3);
 		set_instruction_counter(0);
 		set_instruction_flow(0, NO_INSTRUCTION);

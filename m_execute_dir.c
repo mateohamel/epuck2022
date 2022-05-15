@@ -94,8 +94,8 @@ static THD_FUNCTION(InstructionExecutionThread, arg) {
 		        chThdSleepMilliseconds(2000);
 			}
 		}
-		left_motor_set_speed(0);
-		right_motor_set_speed(0);
+		left_motor_set_speed(NO_SPEED);
+		right_motor_set_speed(NO_SPEED);
 		set_route_counter(0);
 
 		chThdSleepMilliseconds(2000);
